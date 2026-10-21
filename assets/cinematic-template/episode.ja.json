@@ -1,0 +1,45 @@
+{
+  "id": "memory-key-ja-scaffold",
+  "locale": "ja",
+  "title": "記憶の鍵",
+  "author": "RuiC",
+  "durationMs": 20000,
+  "fps": 30,
+  "cutMs": 10000,
+  "sceneId": "workshop",
+  "scenes": {
+    "big": "workshop",
+    "small": "archive"
+  },
+  "actor": {
+    "name": "ラン",
+    "hair": "#282c29",
+    "hairLight": "#41433a",
+    "coat": "#334637",
+    "coatLight": "#50634c",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "skinLight": "#faecd6",
+    "skinShade": "#d4bea5",
+    "clip": "#c79c4a",
+    "hairStyle": "bob",
+    "headwear": "cap",
+    "headwearColor": "#293536",
+    "headwearLight": "#48585a",
+    "headwearAccent": "#b9c2a4",
+    "eye": "#984352"
+  },
+  "chapters": ["見た", "取り出し", "話す"],
+  "voice": [{"at": 600, "end": 8352}, {"at": 10600, "end": 18503}],
+  "lines": [
+    {"at": 600, "end": 2250, "text": "気づいた[[こと]]ある？"},
+    {"at": 2250, "end": 4400, "text": "メモは[[増える]]のに、"},
+    {"at": 4400, "end": 6810, "text": "思い出せるのは"},
+    {"at": 6810, "end": 8900, "text": "[[ほとんど]]ない。"},
+    {"at": 10600, "end": 13500, "text": "記憶は詰め込むこと[[じゃない]]、"},
+    {"at": 13500, "end": 15730, "text": "[[取り出す]]こと。"},
+    {"at": 15730, "end": 17330, "text": "ノートを[[閉じて]]、"},
+    {"at": 17330, "end": 19600, "text": "一度[[説明]]する。"}
+  ],
+  "_note": "JA scaffold only — font preload + i18n labels work; full JA sample video / TTS productization is Phase 3."
+}

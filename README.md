@@ -81,8 +81,10 @@
 | `drawMarkerFlag` | x / y / label / alpha | 错误、路上的卡点、待练项目 |
 | `drawFeedback` | x / y / w / progress / state / alpha | 即时对错、经验变化（correct / pending） |
 | `drawRewardBadge` | x / y / label / alpha | 获得能力、通过验证、解锁道具 |
+| `drawCompareCards` | x / y / w / title / left* / right* / highlight / alpha | 前后 / A-B 对比双卡 |
+| `drawStepBar` | x / y / w / steps / current / title / alpha | 多步流程条 |
 
-它们都是**世界里的道具或 HUD**，不是整页截图；标签从当期 episode 数据传入 —— 库本身不绑定任何一期的口播、音色或语速。
+它们都是**世界里的道具或 HUD**，不是整页截图；标签从当期 episode 数据传入，缺省随 `locale`（zh|en|ja）—— 库本身不绑定任何一期的口播、音色或语速。主题→组件菜单见 [SKILL.md](SKILL.md) 与 [teaching-components.md](references/teaching-components.md)。
 
 ### 3. 语义事件时间轴（`visualBeats`）
 
@@ -90,18 +92,25 @@
 
 ```json
 {
+  "locale": "zh",
+  "sceneId": "workshop",
+  "scenes": { "big": "workshop", "small": "archive" },
   "visualBeats": {
     "collectAt": 500, "queryAt": 2000, "contrastAt": 4500, "retrieveAt": 7000,
+    "compareAt": 8200,
     "testAt": 11000, "closeAt": 11000, "markAt": 13500, "checkAt": 14500,
     "correctAt": 16500, "rewardAt": 17300, "unlockAt": 18200, "walkAt": 15400
   },
   "componentLabels": {
     "inventoryTitle": "收藏栏", "queryTitle": "调取记忆", "contrast": "存下 ≠ 学会",
     "taskTitle": "当前任务", "prompt": "本次问题", "wrongAnswer": "尝试回答",
-    "rightAnswer": "参考答案", "reward": "能力已解锁"
+    "rightAnswer": "参考答案", "reward": "能力已解锁",
+    "compareLeft": "之前", "compareRight": "之后"
   }
 }
 ```
+
+场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `episode.en.json`（预览加 `?ep=en`）；日文为 locale/字体脚手架（`?ep=ja`），完整日片在后续阶段。Phase 1 附带 `demo-en-20s.draft.mp4`（英文字幕 / draft 15fps；音轨仍为模板中文示范 wav，换 TTS 后再出 final）。
 
 **一拍一个因果变化**：资料飞入时看库存，检索失败时看结果，核对时看回答与参考答案，成功后才给奖励。
 面板与角色行动分开编排（角色初始站位 / 行走经过区域 / 终点都要考虑）；绘制顺序是背景 → 人物与手持道具 → 奖励与 HUD，别让开门的矩形把奖章抹掉。
@@ -137,12 +146,14 @@ flowchart LR
 
 **自带样板里有什么**（`assets/cinematic-template/`）：
 
-- `scene.mjs` —— 画人物（`frontActor` / `sideActor`）、后景、道具、前景、灯光、HUD、字幕；内置零件：吊灯、座钟、书架、椅子、地板、聚光锥、暗角、金边面板、问号、钥匙
-- `episode.json` —— 主题 / 作者 / 时长 / 帧率 / 切点 / 角色配色（`actor`：发色、发亮部、外套、外套亮部、围巾、肤色三档、配件）、章节、说话区间（`voice`）、字幕（`lines`）、事件层（`visualBeats` 可选）
-- `components.mjs` —— 上面那八个组件
-- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）
+- `scene.mjs` —— 画人物（`frontActor` / `sideActor`）、后景、道具、前景、灯光、HUD、字幕
+- `scene-presets.mjs` —— 六套可点选粗像素背景
+- `i18n.mjs` —— zh / en / ja 组件默认文案与字体预载辅助
+- `episode.json` / `episode.en.json` / `episode.ja.json` —— 主题、`locale`、`sceneId`、角色、字幕、可选 `visualBeats`
+- `components.mjs` —— 十个讲解组件（含对比卡、步骤条）
+- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）；`?ep=en|ja` 切样例
 - `serve.py` —— 本机 HTTP 服务，支持音频 byte-range
-- `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**（用自己的后端生成，或直接换成品音轨，见「配音与时间轴」）
+- `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**
 
 ## 🚀 快速开始
 
@@ -153,10 +164,10 @@ flowchart LR
 cp -R assets/cinematic-template <本次项目目录>
 cd <本次项目目录>
 
-# 1) 改 episode.json：主题、角色配色与可选字段（hairStyle / headwear / eye / eyePatch）、说话区间、字幕（以及可选的 visualBeats）
-#    ⚠️ 改配色 ≠ 设计新角色；模板字段不足以表现新轮廓时，扩展 scene.mjs 的 frontActor / sideActor 与新场景代码
+# 1) 改 episode.json：locale / sceneId / 主题、角色、字幕、可选 visualBeats（含 compareAt / stepsAt）
+#    ⚠️ 改配色 ≠ 设计新角色；新轮廓扩展 frontActor / sideActor；新地点扩 scene-presets.mjs
 
-# 2) 起本机预览
+# 2) 起本机预览（英：?ep=en）
 python3 serve.py --port 8778 --open
 
 # 3) 逐句配音 + 量真实时长（两步走；配音后端要你自己给，先 --check 验证）
@@ -164,12 +175,13 @@ python3 <技能目录>/scripts/voice_track.py --check
 python3 <技能目录>/scripts/voice_track.py --lines lines.json     --work work --tts-only
 python3 <技能目录>/scripts/voice_track.py --lines lines-abs.json --work work --out voice.wav
 
-# 4) 静帧预检（先看比例、遮挡、字幕安全区）
-node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills --times 1.6,6.2,10.5,14.8,18.4 --dsf 1.5
-
-# 5) 逐帧出片
+# 4) 静帧预检（遮挡三时刻必含）→ draft → final
+node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
+     --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
-     --audio voice.wav --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+     --audio voice.wav --preset draft --threads 2
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
+     --audio voice.wav --preset final --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
 ```
 
 **A 路线**先注册生成的角色资产，再把 `sprite-actor.mjs` 接到模板上（完整接法见 `assets/imagegen-template/INTEGRATION.md`）：

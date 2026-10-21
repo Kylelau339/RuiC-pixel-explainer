@@ -6,9 +6,13 @@
 // 用法（先在工程里 npm run dev，页面起在 5273）：
 //   node render_episode.mjs --url http://127.0.0.1:5273/ --out <成片.mp4>
 //        [--ep practice] [--from 0] [--to 0] [--fps 30] [--dsf 2] [--size 1920x1080]
-//        [--audio <口播.m4a>] [--crf 16] [--verify-repeat 5] [--playwright <路径>]
+//        [--audio <口播.m4a>] [--crf 16] [--verify-repeat 5] [--preset draft|final]
+//        [--playwright <路径>]
 //
 // 说明：
+//   · --preset draft|final：日常迭代用 draft（低自检、更快 x264、可选 15fps）；交付用 final。
+//     未指定时行为与旧版一致（等同 final 的自检与编码，但文件名不加后缀）。
+//   · --from / --to（秒）只渲区间，适合改完一段就局部重渲。
 //   · --dsf 2 让截图落在 2560×1440（像素块正好是艺术格 ×8，等比不畸变），再按 --size 下采样；
 //     要 720p 原样就 --dsf 1 --size 1280x720。
 //   · 交互点在 ?rec=1 下自动取第 0 项（纯观看形态），控制条不出画；章节轨/署名/地点卡/字幕照常。
@@ -24,18 +28,36 @@ import path from 'node:path';
 const argv = process.argv.slice(2);
 const arg = (n, d = '') => {const i = argv.indexOf(`--${n}`); return i >= 0 ? (argv[i + 1] ?? '') : d};
 const url = arg('url', 'http://127.0.0.1:5273/');
-const out = path.resolve(arg('out', 'episode.mp4'));
+let out = path.resolve(arg('out', 'episode.mp4'));
 const ep = arg('ep');
-const fps = Number(arg('fps', '30'));
+const presetRaw = arg('preset', '');
+const preset = presetRaw === 'draft' || presetRaw === 'final' ? presetRaw : '';
+if (presetRaw && !preset) throw new Error('--preset must be draft or final');
+
+// Preset defaults (explicit CLI flags still win when present on argv).
+const has = (n) => argv.includes(`--${n}`);
+const fps = Number(arg('fps', preset === 'draft' ? '15' : '30'));
 const dsf = Number(arg('dsf', '1.5'));
 const threads = Number(arg('threads', '2'));
 if(!Number.isInteger(threads)||threads<1||threads>4)throw new Error('--threads must be an integer from 1 to 4');
 const size = arg('size', '1920x1080');
 const audio = arg('audio');
-const crf = arg('crf', '16');
+const crf = arg('crf', preset === 'draft' ? '23' : '16');
 const from = Number(arg('from', '0'));
 const to = Number(arg('to', '0'));
-const verifyRepeat = Number(arg('verify-repeat', '5'));
+const x264Preset = arg('x264-preset', preset === 'draft' ? 'veryfast' : 'medium');
+const verifyDefault = preset === 'draft' ? '1' : '5';
+const verifyRepeat = has('verify-repeat') ? Number(arg('verify-repeat', verifyDefault)) : Number(verifyDefault);
+
+if (preset) {
+  const dir = path.dirname(out);
+  const base = path.basename(out, path.extname(out));
+  const ext = path.extname(out) || '.mp4';
+  if (!base.endsWith(`.${preset}`) && !base.includes(`.${preset}.`)) {
+    out = path.join(dir, `${base}.${preset}${ext}`);
+  }
+  console.log(`[preset=${preset}] out=${out} fps=${fps} crf=${crf} x264=${x264Preset} verify-repeat=${verifyRepeat}`);
+}
 
 // playwright：优先本工程，其次常见位置
 const home = homedir();
@@ -101,7 +123,7 @@ const [wantW, wantH] = size.split('x').map(Number);
 
 const args = ['-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-vcodec', 'png', '-framerate', String(fps), '-i', '-'];
 if (audio) args.push('-i', audio);
-args.push('-c:v', 'libx264', '-threads', String(threads), '-preset', 'medium', '-crf', crf, '-pix_fmt', 'yuv420p');
+args.push('-c:v', 'libx264', '-threads', String(threads), '-preset', x264Preset, '-crf', crf, '-pix_fmt', 'yuv420p');
 if (wantW !== shotW || wantH !== shotH) args.push('-vf', `scale=${wantW}:${wantH}:flags=neighbor`);
 if (audio) {
   // 音轨比画面短时不许吃掉画面尾巴：补齐静音到画面长度（音轨自己长一点也行）

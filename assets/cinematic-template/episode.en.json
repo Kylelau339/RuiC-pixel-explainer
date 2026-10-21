@@ -1,0 +1,113 @@
+{
+  "id": "memory-key-en",
+  "locale": "en",
+  "title": "The Memory Key",
+  "author": "RuiC",
+  "durationMs": 20000,
+  "fps": 30,
+  "cutMs": 10000,
+  "sceneId": "workshop",
+  "scenes": {
+    "big": "workshop",
+    "small": "archive"
+  },
+  "actor": {
+    "name": "Lan",
+    "hair": "#282c29",
+    "hairLight": "#41433a",
+    "coat": "#334637",
+    "coatLight": "#50634c",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "skinLight": "#faecd6",
+    "skinShade": "#d4bea5",
+    "clip": "#c79c4a",
+    "hairStyle": "bob",
+    "headwear": "cap",
+    "headwearColor": "#293536",
+    "headwearLight": "#48585a",
+    "headwearAccent": "#b9c2a4",
+    "eye": "#984352"
+  },
+  "chapters": [
+    "Seen",
+    "Retrieve",
+    "Speak"
+  ],
+  "voice": [
+    {
+      "at": 600,
+      "end": 8352
+    },
+    {
+      "at": 10600,
+      "end": 18503
+    }
+  ],
+  "lines": [
+    {
+      "at": 600,
+      "end": 2250,
+      "text": "Have you [[noticed]]?"
+    },
+    {
+      "at": 2250,
+      "end": 4400,
+      "text": "Notes keep [[piling]] up,"
+    },
+    {
+      "at": 4400,
+      "end": 6810,
+      "text": "but what you can [[recall]]"
+    },
+    {
+      "at": 6810,
+      "end": 8900,
+      "text": "is [[almost]] nothing."
+    },
+    {
+      "at": 10600,
+      "end": 13500,
+      "text": "Memory is not stuffing [[in]],"
+    },
+    {
+      "at": 13500,
+      "end": 15730,
+      "text": "it is pulling [[out]]."
+    },
+    {
+      "at": 15730,
+      "end": 17330,
+      "text": "Close the [[notes]],"
+    },
+    {
+      "at": 17330,
+      "end": 19600,
+      "text": "and [[teach]] it once."
+    }
+  ],
+  "visualBeats": {
+    "collectAt": 500,
+    "queryAt": 2000,
+    "contrastAt": 4500,
+    "retrieveAt": 7000,
+    "testAt": 11000,
+    "closeAt": 11000,
+    "markAt": 13500,
+    "checkAt": 14500,
+    "correctAt": 16500,
+    "rewardAt": 17300,
+    "unlockAt": 18200,
+    "walkAt": 15400
+  },
+  "componentLabels": {
+    "inventoryTitle": "Inventory",
+    "queryTitle": "Recall",
+    "contrast": "Stored ≠ learned",
+    "taskTitle": "Retrieve",
+    "prompt": "This question",
+    "wrongAnswer": "My try",
+    "rightAnswer": "Reference",
+    "reward": "Skill unlocked"
+  }
+}

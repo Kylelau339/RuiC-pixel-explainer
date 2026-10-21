@@ -47,7 +47,7 @@ function dashed(c, x, y, w, h, color = P.muted) {
 }
 
 export const componentGlyphs =
-  '收藏栏资料已存入调取记忆未找到空白闭卷测试我的回答参考答案等待核对卡点即时反馈偏差答对了经验获得能力已解锁书籍先看再答先答再看验证成功检索任务问题对比之前之后步骤✓×?+0123456789≠ ·InventorySavedItemsRecallNotfoundClosed-bookMyanswerReferenceCheckingStuckFeedbackCorrectMissXPSkillunlockedStoredlearnedRetrieveStepsCompareBeforeAfterコレクション保存済資料想起見つからない閉本テスト自分の答え参考答え確認中つまずきフィードバック正解ずれ経験能力解除保存習得取り出し手順対比前後';
+  '收藏栏资料已存入调取记忆未找到空白闭卷测试我的回答参考答案等待核对卡点即时反馈偏差答对了经验获得能力已解锁书籍先看再答先答再看验证成功检索任务问题对比之前之后步骤时间线思考开始锁定开放完成路径节点✓×?+0123456789≠ ·InventorySavedItemsRecallNotfoundClosed-bookMyanswerReferenceCheckingStuckFeedbackCorrectMissXPSkillunlockedStoredlearnedRetrieveStepsCompareBeforeAfterTimelineThinkGoLockedOpenDoneNodePathコレクション保存済資料想起見つからない閉本テスト自分の答え参考答え確認中つまずきフィードバック正解ずれ経験能力解除保存習得取り出し手順対比前後タイムライン考える開始ロック開放完了点';
 
 export function drawPaper(c, {x, y, w = 112, h = 72, label = '', mark = false, alpha = 1}) {
   c.save();
@@ -250,4 +250,127 @@ export function drawStepBar(c, {x, y, w = 900, steps = [], current = 0, title, a
     text(c, label, cx, y + 92, 22, active ? '#e0d4a0' : P.muted, 'center');
   });
   c.restore();
+}
+
+/** Horizontal process timeline (2–5 nodes). Labels under beads. */
+export function drawTimeline(c, {x, y, w = 720, steps = [], activeIndex = 0, progress = 0, title, alpha = 1}) {
+  title = title ?? t('timelineTitle');
+  const list = steps.length
+    ? steps.map((s) => (typeof s === 'string' ? {id: s, label: s} : s))
+    : [{label: t('timelineStep') + ' 1'}, {label: t('timelineStep') + ' 2'}, {label: t('timelineStep') + ' 3'}];
+  const n = list.length,
+    pad = 36,
+    usable = w - pad * 2,
+    stepX = n > 1 ? usable / (n - 1) : 0;
+  c.save();
+  c.globalAlpha = alpha;
+  if (title) text(c, title, x + 12, y - 32, 24, P.muted);
+  r(c, x + pad, y + 14, usable, 4, '#2a3a30');
+  if (n > 1 && activeIndex > 0) {
+    const fill = Math.min(n - 1, activeIndex) + clamp(progress);
+    r(c, x + pad, y + 14, stepX * Math.min(n - 1, fill), 4, P.teal);
+  }
+  list.forEach((step, i) => {
+    const cx = x + pad + stepX * i;
+    const done = i < activeIndex || step.done,
+      active = i === activeIndex;
+    const col = active ? P.teal : done ? '#6a8a70' : '#4a5448';
+    const beadA = done && !active ? 0.45 : 1;
+    c.save();
+    c.globalAlpha = alpha * beadA;
+    r(c, cx - 14, y, 28, 28, '#0a1410');
+    frame(c, cx - 14, y, 28, 28, col, 3);
+    text(c, String(i + 1), cx, y + 4, 22, active ? P.teal : P.paper, 'center');
+    text(c, step.label || t('timelineStep'), cx, y + 36, 24, active ? '#e0d4a0' : P.muted, 'center');
+    c.restore();
+  });
+  c.restore();
+}
+
+/** Hard-edge speech bubble. Keep ≤12 CJK / ≤22 Latin; longer copy belongs in captions. */
+export function drawSpeechBubble(c, {x, y, w = 280, h = 110, text: body = '', tail = 'bl', tone = 'neutral', alpha = 1, speakerOffset = {dx: 0, dy: 0}}) {
+  const stroke = tone === 'question' ? P.red : tone === 'emphasize' ? P.teal : P.gold;
+  const msg = body || t('speechEllipsis');
+  c.save();
+  c.globalAlpha = alpha;
+  panel(c, x, y, w, h, stroke);
+  text(c, msg, x + 18, y + 28, 28, P.paper);
+  const tipX = (tail === 'bl' || tail === 'tl' ? x + 36 : x + w - 36) + (speakerOffset.dx || 0);
+  const tipY = (tail === 'bl' || tail === 'br' ? y + h : y) + (speakerOffset.dy || 0);
+  const midY = tail === 'bl' || tail === 'br' ? y + h - 4 : y + 4;
+  const midX = tipX + (tail === 'bl' || tail === 'tl' ? 18 : -18);
+  r(c, midX - 6, midY - 6, 12, 12, stroke);
+  r(c, tipX - 5, tipY - 5, 10, 10, stroke);
+  r(c, tipX - 3, tipY - 3, 6, 6, P.ink);
+  c.restore();
+}
+
+/** Path nodes + dashed edges for walk mirrors. */
+export function drawPathNodes(c, {nodes = [], edges = [], nodeR = 18, alpha = 1, labelSize = 24}) {
+  c.save();
+  c.globalAlpha = alpha;
+  for (const e of edges) {
+    const a = nodes[e.from],
+      b = nodes[e.to];
+    if (!a || !b) continue;
+    const col = e.lit ? P.teal : '#547e65';
+    const steps = Math.max(4, Math.floor(Math.hypot(b.x - a.x, b.y - a.y) / 28));
+    for (let i = 0; i <= steps; i++) {
+      const k = i / steps;
+      r(c, a.x + (b.x - a.x) * k - 3, a.y + (b.y - a.y) * k - 1, 6, 3, col);
+    }
+  }
+  nodes.forEach((n) => {
+    const st = n.state || 'open';
+    const col = st === 'active' ? P.teal : st === 'done' ? '#6a8a70' : st === 'locked' ? P.muted : P.gold;
+    const s = nodeR * 2;
+    r(c, n.x - nodeR, n.y - nodeR, s, s, '#0a1410');
+    frame(c, n.x - nodeR, n.y - nodeR, s, s, col, 3);
+    if (st === 'locked') text(c, '×', n.x, n.y - 12, 24, P.muted, 'center');
+    else if (st === 'done') text(c, '✓', n.x, n.y - 12, 24, P.teal, 'center');
+    if (n.label) text(c, n.label, n.x, n.y - nodeR - 28, labelSize, P.paper, 'center');
+  });
+  c.restore();
+}
+
+/** Coarse pixel countdown / progress ring (segmented squares, no smooth arcs). */
+export function drawCountdownRing(c, {x, y, r: radius = 54, progress = 0, mode = 'countDown', label, valueText = '', warnBelow = 0.25, alpha = 1}) {
+  label = label ?? t('ringThink');
+  const p = clamp(progress);
+  const warn = p < warnBelow;
+  const col = warn ? P.red : P.teal;
+  const segments = 16;
+  c.save();
+  c.globalAlpha = alpha;
+  for (let i = 0; i < segments; i++) {
+    const a = -Math.PI / 2 + (i / segments) * Math.PI * 2;
+    const on = i / segments < p;
+    const px = x + Math.cos(a) * radius - 4;
+    const py = y + Math.sin(a) * radius - 4;
+    r(c, px, py, 8, 8, on ? col : '#2a3a30');
+  }
+  frame(c, x - 22, y - 22, 44, 44, warn ? P.red : P.gold, 2);
+  const center = valueText || (mode === 'countDown' ? String(Math.max(0, Math.ceil(p * 10))) : `${Math.round(p * 100)}%`);
+  text(c, center, x, y - 14, 24, P.paper, 'center');
+  text(c, label, x, y + 28, 22, P.muted, 'center');
+  c.restore();
+}
+
+/** Declared layout hints for qa_stills (face × panel bbox checks). */
+export function componentPanelBBox(kind, params = {}) {
+  if (kind === 'timeline') return {x: params.x ?? 480, y: params.y ?? 140, w: params.w ?? 720, h: 80};
+  if (kind === 'speech') return {x: params.x ?? 920, y: params.y ?? 220, w: params.w ?? 280, h: params.h ?? 110};
+  if (kind === 'ring') {
+    const r0 = params.r ?? 54;
+    return {x: (params.x ?? 1680) - r0 - 8, y: (params.y ?? 200) - r0 - 8, w: (r0 + 8) * 2, h: (r0 + 8) * 2 + 40};
+  }
+  if (kind === 'compare') return {x: params.x ?? 600, y: params.y ?? 160, w: params.w ?? 720, h: 220};
+  if (kind === 'stepbar') return {x: params.x ?? 510, y: params.y ?? 720, w: params.w ?? 900, h: 120};
+  if (kind === 'path' && Array.isArray(params.nodes) && params.nodes.length) {
+    const xs = params.nodes.map((n) => n.x),
+      ys = params.nodes.map((n) => n.y);
+    const pad = 40;
+    return {x: Math.min(...xs) - pad, y: Math.min(...ys) - pad - 30, w: Math.max(...xs) - Math.min(...xs) + pad * 2, h: Math.max(...ys) - Math.min(...ys) + pad * 2 + 30};
+  }
+  return null;
 }

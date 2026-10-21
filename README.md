@@ -83,8 +83,12 @@
 | `drawRewardBadge` | x / y / label / alpha | 获得能力、通过验证、解锁道具 |
 | `drawCompareCards` | x / y / w / title / left* / right* / highlight / alpha | 前后 / A-B 对比双卡 |
 | `drawStepBar` | x / y / w / steps / current / title / alpha | 多步流程条 |
+| `drawTimeline` | steps / activeIndex / progress | 阶段时间线 |
+| `drawSpeechBubble` | text / tail / tone | 短对话泡（≤12 汉 / ≤22 Latin） |
+| `drawPathNodes` | nodes / edges | 路径节点 |
+| `drawCountdownRing` | progress / mode / label | 分段进度环 |
 
-它们都是**世界里的道具或 HUD**，不是整页截图；标签从当期 episode 数据传入，缺省随 `locale`（zh|en|ja）—— 库本身不绑定任何一期的口播、音色或语速。主题→组件菜单见 [SKILL.md](SKILL.md) 与 [teaching-components.md](references/teaching-components.md)。
+标签随 `locale`；主题菜单见 [SKILL.md](SKILL.md) / [teaching-components.md](references/teaching-components.md)。新片优先 `events[]`（`visualBeats` 仍兼容）。
 
 ### 3. 语义事件时间轴（`visualBeats`）
 
@@ -149,8 +153,9 @@ flowchart LR
 - `scene.mjs` —— 画人物（`frontActor` / `sideActor`）、后景、道具、前景、灯光、HUD、字幕
 - `scene-presets.mjs` —— 六套可点选粗像素背景
 - `i18n.mjs` —— zh / en / ja 组件默认文案与字体预载辅助
-- `episode.json` / `episode.en.json` / `episode.ja.json` —— 主题、`locale`、`sceneId`、角色、字幕、可选 `visualBeats`
-- `components.mjs` —— 十个讲解组件（含对比卡、步骤条）
+- `events-adapter.mjs` —— `visualBeats`→`events[]` 适配与 `foldEvents`
+- `episode.json` / `episode.en.json` / `episode.ja.json` / `episode.zh-path.json` —— 主题样例（zh-path 为中文非记忆 `events` 秀）
+- `components.mjs` —— 十四个讲解组件（含 timeline / speech / path / ring）
 - `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）；`?ep=en|ja` 切样例
 - `serve.py` —— 本机 HTTP 服务，支持音频 byte-range
 - `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**

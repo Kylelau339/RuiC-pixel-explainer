@@ -6,22 +6,27 @@ import {componentGlyphs} from './components.mjs';
 import {normalizeLocale,htmlLang,PRELOAD_EXTRA,FONT_FAMILY,t,STRINGS} from './i18n.mjs';
 
 const params=new URLSearchParams(location.search);
-const epFile=params.get('ep')==='en'?'./episode.en.json':params.get('ep')==='ja'?'./episode.ja.json':'./episode.json';
+const epMap={en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json','occlusion-fail':'./episode.occlusion-fail.json'};
+const epFile=epMap[params.get('ep')]||'./episode.json';
 const ep=await fetch(epFile).then(r=>r.json());
 const locale=normalizeLocale(ep.locale||'zh');
 document.documentElement.lang=htmlLang(locale);
 document.title=`${ep.title} · coarse pixel`;
 document.getElementById('loading').textContent=STRINGS[locale]?.loading||t('loading',locale);
+document.getElementById('seek').max=String(ep.durationMs-1);
 
-const glyphs=[ep.title,ep.author,ep.actor.name,componentGlyphs,PRELOAD_EXTRA[locale]||'',...Object.values(ep.componentLabels||{}),...(ep.componentLabels?.steps||[]),...ep.chapters,...ep.lines.map(l=>l.text)].join('');
+const labelVals=Object.values(ep.componentLabels||{}).flatMap(v=>Array.isArray(v)?v:[v]);
+const glyphs=[ep.title,ep.author,ep.actor?.name||'',componentGlyphs,PRELOAD_EXTRA[locale]||'',...labelVals,...(ep.chapters||[]),...(ep.lines||[]).map(l=>l.text)].join('');
 await document.fonts.load(`72px ${FONT_FAMILY}`,glyphs);await document.fonts.ready;
 
-const painter=new CinematicScene(ep),canvas=document.getElementById('stage'),audio=document.getElementById('audio');
+const painter=new CinematicScene(ep);
+if(ep.actorMode==='sprite')await painter.load().catch(err=>{document.getElementById('loading').textContent=String(err.message||err);throw err;});
+const canvas=document.getElementById('stage'),audio=document.getElementById('audio');
 let ms=Math.min(ep.durationMs-1,Math.max(0,Number(params.get('t'))||0)),playing=false;
 if(params.get('rec')==='1')document.body.classList.add('rec');
 function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);document.querySelector('.frame').style.transform=`scale(${k})`;}fit();addEventListener('resize',fit);
 function set(tms){ms=Math.max(0,Math.min(ep.durationMs-1,tms));painter.draw(canvas,ms);document.getElementById('seek').value=ms;document.getElementById('time').textContent=`00:${String(Math.floor(ms/1000)).padStart(2,'0')} / 00:${String(Math.floor(ep.durationMs/1000)).padStart(2,'0')}`;}
-window.__player={set,get:()=>ms,total:ep.durationMs,rec:params.get('rec')==='1',episode:ep,locale};set(ms);document.getElementById('loading').remove();
+window.__player={set,get:()=>ms,total:ep.durationMs,rec:params.get('rec')==='1',episode:ep,locale,getQaPanels:()=>painter.qaPanels||[],facePreset:(shot)=>shot==='small'?{x:500,y:560,w:120,h:110}:{x:590,y:280,w:240,h:260}};set(ms);document.getElementById('loading').remove();
 function pause(){playing=false;audio.pause();document.getElementById('play').textContent='▶';}
 async function play(){audio.currentTime=ms/1000;await audio.play().catch(()=>{});playing=true;document.getElementById('play').textContent='Ⅱ';}
 document.getElementById('play').onclick=()=>playing?pause():play();document.getElementById('seek').oninput=e=>{pause();set(Number(e.target.value))};document.getElementById('mute').onclick=()=>{audio.muted=!audio.muted;document.getElementById('mute').textContent=audio.muted?'🔇':'🔊';};

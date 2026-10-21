@@ -2,6 +2,16 @@
 
 这个目录是角色资产适配器和静音检查页，不包含人物 PNG、主题场景、口播或音色。没有资产时会明确报错。不得用检查页充当成品场景。
 
+## 推荐：三步接入（Phase 2）
+
+详见同目录 [`scene-sprite-patch.md`](scene-sprite-patch.md)：
+
+1. 复制 `cinematic-template` + `sprite-actor.mjs`，注册图集  
+2. `episode.actorMode: "sprite"` + `actorAssets`（缺图构造期抛错）  
+3. 模板已提供 `drawActorBig` / `drawActorSmall` + `load()`，**不必**再改四处调用  
+
+旧「四处替换」流程保留在下方附录，仅用于未升级模板。
+
 ## 注册图集
 
 用 `scripts/register_actor_sheet.py` 将新生成的透明 4×4 小人动作表注册到 `assets/sprites/`，透明 2×2 独立半身表情表注册到 `assets/bust/`。脚底基线用 256 / 240，腰线用 512 / 500。
@@ -13,11 +23,11 @@ python3 scripts/register_actor_sheet.py --sheet /absolute/portrait-atlas.png --g
 
 脚本按实质 alpha 的行列间隔分离，统一缩放系数、脚底或腰线；不按图片尺寸等分。生成图常含 alpha=1 的散点，默认 alpha>128 仅用于定位轮廓和网格，输出保留裁剪区域的原始 RGBA 与最近邻采样。默认裁图在实质轮廓四周保留 3 像素边界，忽略远离主体的 alpha=1 噪点，不抠白背景、不补画、不改色。若图集没有透明间隔，或同一表主体高度差超过 1.5 倍，明确失败并重新生成，不逐帧单独缩放来掩盖。已有非空输出目录不会被覆盖。输出 manifest 记录阈值、实际源区域、裁区、统一系数与每帧核心边界，必须检查没有发饰或道具被截掉。
 
-## 接入已有 Stage / CinematicScene
+## 附录 · 旧模板四处替换（仅未升级工程）
 
-先把已验证的 `assets/cinematic-template/` **本地复制**到本次工程，复用其字幕、HUD、组件与导出脚本；场景背景按新角色重新设计。将本目录 `sprite-actor.mjs` 复制到本次工程的根目录。
+先把已验证的 `assets/cinematic-template/` **本地复制**到本次工程。若模板已含 `drawActorBig` / `actorMode`，请改走上方三步，不要再用本节。
 
-以下接法针对随技能提供的实际模板：`CinematicScene` 当前没有 `load()`，人物直接在 `bigLegacy`、`smallLegacy`、`big`、`small` 四处调用 `frontActor` / `sideActor`。必须替换这四处，并在播放器初始化时等待加载；只添加新方法不会让 PNG 被用到。不要在 PNG 上再画五官、鼻子、衣服或换肤滤镜。
+以下针对**旧版**模板：人物直接在 `bigLegacy`、`smallLegacy`、`big`、`small` 四处调用 `frontActor` / `sideActor`。必须替换这四处；不要在 PNG 上再画五官、鼻子、衣服或换肤滤镜。
 
 ### 1. 本期 JSON 明确写资产与已核对的帧序
 

@@ -37,6 +37,15 @@ export const STRINGS = {
     noteSaved: '笔记 · 已保存',
     rememberQ: '记住了？',
     extracted: '已提取 · 能讲出来',
+    timelineTitle: '时间线',
+    timelineStep: '步骤',
+    speechEllipsis: '……',
+    pathNode: '点',
+    pathLocked: '锁定',
+    pathOpen: '开放',
+    pathDone: '完成',
+    ringThink: '思考',
+    ringGo: '开始',
   },
   en: {
     inventoryTitle: 'Inventory',
@@ -65,6 +74,15 @@ export const STRINGS = {
     noteSaved: 'Notes · saved',
     rememberQ: 'Remember?',
     extracted: 'Retrieved · can teach',
+    timelineTitle: 'Timeline',
+    timelineStep: 'Step',
+    speechEllipsis: '...',
+    pathNode: 'Node',
+    pathLocked: 'Locked',
+    pathOpen: 'Open',
+    pathDone: 'Done',
+    ringThink: 'Think',
+    ringGo: 'Go',
   },
   ja: {
     inventoryTitle: 'コレクション',
@@ -93,14 +111,23 @@ export const STRINGS = {
     noteSaved: 'メモ · 保存済',
     rememberQ: '覚えた？',
     extracted: '取り出し · 説明できる',
+    timelineTitle: 'タイムライン',
+    timelineStep: '手順',
+    speechEllipsis: '……',
+    pathNode: '点',
+    pathLocked: 'ロック',
+    pathOpen: '開放',
+    pathDone: '完了',
+    ringThink: '考える',
+    ringGo: '開始',
   },
 };
 
 /** Extra glyph bag for font preload per locale (beyond episode strings). */
 export const PRELOAD_EXTRA = {
-  zh: '笔记 · 已保存记住了？已提取 · 能讲出来记忆资料未找到闭卷测试等待核对卡点即时反馈偏差答对了经验获得能力已解锁步骤对比之前之后✓×?≠',
-  en: 'Inventory Saved Items Recall Not found Closed-book My answer Reference Checking Stuck Feedback Correct Miss XP Skill unlocked Stored learned Retrieve Steps Compare Before After ✓×?≠',
-  ja: 'コレクション保存済資料想起見つからない閉本テスト自分の答え参考答え確認中つまずきフィードバック正解ずれ経験能力解除保存習得取り出し手順対比前後✓×?≠',
+  zh: '笔记 · 已保存记住了？已提取 · 能讲出来记忆资料未找到闭卷测试等待核对卡点即时反馈偏差答对了经验获得能力已解锁步骤对比之前之后时间线思考开始锁定开放完成路径节点✓×?≠',
+  en: 'Inventory Saved Items Recall Not found Closed-book My answer Reference Checking Stuck Feedback Correct Miss XP Skill unlocked Stored learned Retrieve Steps Compare Before After Timeline Think Go Locked Open Done Node Path ✓×?≠',
+  ja: 'コレクション保存済資料想起見つからない閉本テスト自分の答え参考答え確認中つまずきフィードバック正解ずれ経験能力解除保存習得取り出し手順対比前後タイムライン考える開始ロック開放完了点✓×?≠',
 };
 
 let _locale = DEFAULT_LOCALE;

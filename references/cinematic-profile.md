@@ -23,7 +23,7 @@ assets/cinematic-template/ 中：scene.mjs 独立绘制人物、后景、道具�
 
 ## 内容组件
 
-`components.mjs` 提供资料卡、物品栏、书页开合、检索面板、答题与答案对照、卡点旗、即时反馈条、奖励徽章，以及 **对比双卡（CompareCards）** 与 **步骤条（StepBar）**。`scene.mjs` 的增强层在 episode 配置存在 visualBeats 时启用；`compareAt` / `stepsAt` 可选开启新组件。不要通过增加背景纹理来解决讲解单调。具体 API 见 teaching-components.md。
+`components.mjs` 提供资料卡、物品栏、书页、检索、答题、卡点、反馈、奖励，以及对比双卡、步骤条、**时间线、对话泡、路径节点、进度环**。`episode.events[]` 为推荐事件层（`events-adapter.mjs`）；仅有 `visualBeats` 时走旧增强路径保持兼容。不要通过增加背景纹理解决单调。API 见 teaching-components.md。
 
 ## 时间轴与复用
 

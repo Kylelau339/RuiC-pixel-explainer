@@ -66,11 +66,11 @@ A开工读 [references/imagegen-route.md](references/imagegen-route.md)，用 `s
 |---|---|---|---|
 | 记忆 / 提取 | Inventory → Recall → Quiz → Feedback → Reward | MarkerFlag, OpenBook | `workshop` + `archive` |
 | 对比抉择（Before/After） | **CompareCards** → StepBar 或 Feedback | Paper, RewardBadge | `study` / `terminal` |
-| 步骤流程（怎么做） | **StepBar** → 各步 Paper/Inventory | OpenBook, MarkerFlag | `study` / `moonatelier` |
-| 系统 / 调试 | Recall(failed) → Quiz → Feedback | CompareCards, StepBar | `terminal` |
-| 旅程 / 选择 | Side walk + MarkerFlag → Reward | CompareCards, Inventory | `nightstreet` + `archive` |
+| 步骤 / 结构（非记忆） | **Timeline** + StepBar + **Path** | Speech, Ring, Compare | `terminal` / `study` |
+| 系统 / 调试 | Recall(failed) → Quiz → Feedback | CompareCards, Ring | `terminal` |
+| 旅程 / 选择 | Path + walk → Reward | Speech, MarkerFlag | `nightstreet` + `archive` |
 
-完整参数与 `visualBeats` 字段见 [references/teaching-components.md](references/teaching-components.md)。模板中 `components.mjs` 可独立复用；`episode.visualBeats` 启用增强事件层。`locale`（`zh`|`en`|`ja` 脚手架）决定组件默认文案与字体预载；`sceneId` / `scenes.{big,small}` 点选六套场景预设。
+完整参数与 **`events[]` / `visualBeats` 迁移表**见 [references/teaching-components.md](references/teaching-components.md)。新样片优先 `events`；旧片可继续 `visualBeats`。`locale`（`zh`|`en`|`ja` 脚手架）；`sceneId` 点选六套场景。交付前建议跑 `scripts/qa_stills.mjs`（不取代遮挡三时刻人工检）。
 
 - 优先组合道具动作与信息反馈；组件有独立状态与时间参数，不能只贴静态文字框。
 - 同一段落内按语义推进；一个组件成为焦点时，上一组件停止、变暗或退场。
@@ -120,6 +120,9 @@ node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
   --out sample.mp4 --preset draft --from 10 --to 20
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
   --out sample.mp4 --audio voice.wav --preset final --threads 2
+# 轻量 QA（声明 bbox；挡脸夹具应 fail）
+node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep zh-path --out qa-stills
+node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep occlusion-fail --out qa-fail --times 1.0 ; echo "expect fail"
 ```
 
 - `--preset draft`：约 15fps、更快 x264、`verify-repeat=1`，输出文件名带 `.draft`；**不可当作交付成片**。

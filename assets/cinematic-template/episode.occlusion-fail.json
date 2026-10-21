@@ -1,0 +1,33 @@
+{
+  "id": "occlusion-fail-fixture",
+  "title": "挡脸夹具",
+  "author": "QA",
+  "locale": "zh",
+  "sceneId": "workshop",
+  "scenes": { "big": "workshop", "small": "archive" },
+  "durationMs": 4000,
+  "fps": 30,
+  "cutMs": 4000,
+  "actor": {
+    "name": "测",
+    "hairStyle": "bob",
+    "headwear": "none",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "eye": "#984352"
+  },
+  "chapters": ["夹具"],
+  "componentLabels": {
+    "bubble1": "故意挡脸测试文案"
+  },
+  "events": [
+    { "at": 200, "type": "speech.show", "params": { "textKey": "bubble1", "x": 620, "y": 300, "tail": "bl" } }
+  ],
+  "voice": [],
+  "lines": [
+    { "at": 200, "end": 3800, "text": "夹具[[挡脸]]" }
+  ],
+  "_note": "Speech bubble placed over face bbox — qa_stills must FAIL Q3."
+}

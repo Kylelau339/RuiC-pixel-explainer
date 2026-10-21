@@ -1,12 +1,13 @@
-import {drawPaper,drawInventory,drawRecallPanel,drawOpenBook,drawQuizBoard,drawMarkerFlag,drawFeedback,drawRewardBadge,drawCompareCards,drawStepBar,setLocale} from './components.mjs';
+import {drawPaper,drawInventory,drawRecallPanel,drawOpenBook,drawQuizBoard,drawMarkerFlag,drawFeedback,drawRewardBadge,drawCompareCards,drawStepBar,drawTimeline,drawSpeechBubble,drawPathNodes,drawCountdownRing,setLocale} from './components.mjs';
 import {buildPresetCanvas,resolveScenePair,SCENE_IDS} from './scene-presets.mjs';
 import {FONT_FAMILY,t} from './i18n.mjs';
+import {foldEvents,usesNativeEvents} from './events-adapter.mjs';
 // Coarse pixel cinematic scene kit. All geometry, actors and props are drawn
 // from independent primitives. No recovered video frames or AI backdrop used.
 const W=1920,H=1080;
 const C={ink:'#171d1b',dark:'#0e1212',gold:'#cfab57',paper:'#e9dec0',warm:'#b79558',teal:'#77b9ac'};
 export const clamp=x=>Math.max(0,Math.min(1,x));
-export {SCENE_IDS,resolveScenePair};
+export {SCENE_IDS,resolveScenePair,usesNativeEvents,foldEvents};
 const ease=x=>1-Math.pow(1-clamp(x),3);
 const lerp=(a,b,k)=>a+(b-a)*k;
 function rect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
@@ -25,9 +26,8 @@ function vignette(c){const g=c.createRadialGradient(960,440,270,960,485,1100);g.
 function panel(c,x,y,w,h){rect(c,x,y,w,h,'#15221e');frame(c,x,y,w,h,'#b69a59',3);for(const [a,b]of [[x,y],[x+w-6,y],[x,y+h-6],[x+w-6,y+h-6]])rect(c,a,b,6,6,'#e0cd8b');}
 
 // Both actors share identity colors, but have independently authored shapes.
-// Optional visual fields: hairStyle (bob/long/short), headwear (none/cap/beret),
-// headwearColor, headwearLight, headwearAccent, eye/eyeLeft/eyeRight, eyePatch.
-// Existing episode.actor color tables remain valid; no image asset is required.
+// hairStyle: bob|long|short|ponytail|twin ; headwear: none|cap|beret|hood|helmet|bow
+// + headwearColor/Light/Accent, eye/eyeLeft/eyeRight, eyePatch.
 function actorPalette(skin={}){
  return {outline:'#171d1e',hair:'#282c29',hairLight:'#41433a',coat:'#334637',coatLight:'#50634c',scarf:'#a55437',skin:'#ddb18c',skinLight:'#edc49c',skinShade:'#bf926c',clip:'#c79c4a',eye:'#425e6d',eyeWhite:'#f1e6cc',blush:'#cd927d',mouth:'#493b37',collar:'#e4e0c4',pants:'#373b35',hairStyle:'bob',headwear:'none',...skin};
 }
@@ -39,6 +39,24 @@ function headwear(r,p,f,mini=false){
  }else if(f.headwear==='beret'){
   if(mini){p([[8,0],[18,0],[18,1],[21,1],[21,3],[22,3],[22,6],[3,6],[3,3],[5,3],[5,1],[8,1]],f.outline);r(6,2,14,3,hat);r(7,2,10,1,light);if(accent)r(18,3,2,2,accent);}
   else{p([[10,0],[24,0],[24,1],[27,1],[27,3],[29,3],[29,6],[4,6],[4,3],[7,3],[7,1],[10,1]],f.outline);r(8,2,18,3,hat);r(9,2,13,1,light);if(accent)r(24,3,2,2,accent);}
+ }else if(f.headwear==='hood'){
+  if(mini){p([[4,1],[20,1],[20,2],[22,2],[22,8],[21,8],[21,12],[3,12],[3,8],[2,8],[2,2],[4,2]],f.outline);r(5,3,14,8,hat);r(6,3,10,2,light);if(accent)r(10,8,4,2,accent);}
+  else{p([[6,1],[26,1],[26,2],[29,2],[29,9],[28,9],[28,14],[4,14],[4,9],[3,9],[3,2],[6,2]],f.outline);r(7,3,18,9,hat);r(8,3,12,2,light);if(accent)r(14,9,5,2,accent);}
+ }else if(f.headwear==='helmet'){
+  if(mini){p([[5,0],[19,0],[19,1],[22,1],[22,6],[21,6],[21,9],[3,9],[3,6],[2,6],[2,1],[5,1]],f.outline);r(5,2,15,5,hat);r(6,2,10,1,light);r(4,7,16,2,f.outline);if(accent)r(10,3,4,2,accent);}
+  else{p([[7,0],[25,0],[25,1],[28,1],[28,7],[27,7],[27,11],[5,11],[5,7],[4,7],[4,1],[7,1]],f.outline);r(7,2,18,6,hat);r(8,2,12,1,light);r(5,8,22,2,f.outline);if(accent)r(13,4,6,2,accent);}
+ }else if(f.headwear==='bow'){
+  if(mini){r(8,0,8,3,hat);r(6,1,4,4,hat);r(14,1,4,4,hat);r(9,1,6,2,light);if(accent)r(10,2,4,1,accent);}
+  else{r(11,0,10,4,hat);r(8,1,5,5,hat);r(19,1,5,5,hat);r(12,1,8,2,light);if(accent)r(14,2,4,2,accent);}
+ }
+}
+function hairExtras(r,f,mini=false){
+ if(f.hairStyle==='ponytail'){
+  if(mini){r(18,10,4,12,f.outline);r(19,11,2,10,f.hair);r(19,14,1,6,f.hairLight);}
+  else{r(25,12,5,16,f.outline);r(26,13,3,14,f.hair);r(27,16,1,8,f.hairLight);}
+ }else if(f.hairStyle==='twin'){
+  if(mini){r(1,10,4,14,f.outline);r(2,11,2,12,f.hair);r(19,10,4,14,f.outline);r(20,11,2,12,f.hair);}
+  else{r(2,12,5,18,f.outline);r(3,13,3,16,f.hair);r(26,12,5,18,f.outline);r(27,13,3,16,f.hair);}
  }
 }
 
@@ -62,6 +80,7 @@ export function frontActor(c,x,y,s,t,skin,speaking=false){
  r(12,10,10,9,f.skinLight);r(11,17,12,2,f.skinLight);
  r(8,3,15,3,f.hairLight);r(6,6,10,2,f.hair);r(7,8,6,2,f.hair);r(7,10,4,2,f.hair);r(21,7,4,3,f.hair);r(23,10,3,8,f.hair);
  if(f.hairStyle==='short'){r(5,15,3,6,outline);r(6,15,2,5,f.hair);r(25,15,3,6,outline);r(25,15,2,5,f.hair);}
+ hairExtras(r,f,false);
  if(f.clip){r(7,6,3,1,f.clip);r(8,7,3,1,f.clip);}
  headwear(r,p,f);
  const blink=Math.floor(t/100)%43>=40;
@@ -98,6 +117,7 @@ export function sideActor(c,x,foot,s,t,skin,walking=false){
  r(7,8,11,9,f.skin);r(8,10,10,7,f.skinLight);r(8,17,9,1,f.skinLight);
  r(6,3,12,3,f.hairLight);r(4,6,7,2,f.hair);r(5,8,4,2,f.hair);r(17,6,3,3,f.hair);r(19,8,2,7,f.hair);
  if(f.hairStyle==='short'){r(3,14,3,4,outline);r(4,14,2,3,f.hair);r(19,14,3,4,outline);r(19,14,2,3,f.hair);}
+ hairExtras(r,f,true);
  if(f.clip){r(5,5,3,1,f.clip);r(6,6,2,1,f.clip);}
  headwear(r,p,f,true);
  const blink=!walk&&Math.floor(t/100)%43>=40;
@@ -125,8 +145,38 @@ export class CinematicScene{
   this.ep=episode;
   setLocale(episode.locale||'zh');
   this.scenePair=resolveScenePair(episode);
+  this.actorMode=episode.actorMode==='sprite'?'sprite':'code';
+  this.pngActor=null;
   this.backgrounds={};
   this.buildBackgrounds();
+  this.qaPanels=[]; // last-frame declared component bboxes for qa_stills
+  if(this.actorMode==='sprite'){
+   if(!episode.actorAssets?.mini?.manifest||!episode.actorAssets?.portrait?.manifest){
+    throw new Error('actorMode=sprite requires episode.actorAssets.mini.manifest and portrait.manifest');
+   }
+  }
+ }
+ /** Optional: wire SpriteActor after import; see imagegen-template/scene-sprite-patch.md */
+ async load(){
+  if(this.actorMode!=='sprite')return this;
+  const {SpriteActor}=await import('./sprite-actor.mjs').catch(()=>import('../imagegen-template/sprite-actor.mjs'));
+  this.pngActor=new SpriteActor({mini:this.ep.actorAssets.mini.manifest,portrait:this.ep.actorAssets.portrait.manifest});
+  await this.pngActor.load?.();
+  return this;
+ }
+ /** Single big-actor entry — A/B switch lives here (not at four call sites). */
+ drawActorBig(c,x,y,s,tm,skin,speaking=false){
+  if(this.actorMode==='sprite'&&this.pngActor?.paintPortrait){
+   this.pngActor.paintPortrait(c,x,y,s,tm,speaking);return;
+  }
+  frontActor(c,x,y,s,tm,skin,speaking);
+ }
+ /** Single small-actor entry. */
+ drawActorSmall(c,x,foot,s,tm,skin,walking=false){
+  if(this.actorMode==='sprite'&&this.pngActor?.paintMini){
+   this.pngActor.paintMini(c,x,foot,s,tm,walking);return;
+  }
+  sideActor(c,x,foot,s,tm,skin,walking);
  }
  buildBackgrounds(){
   // Build only the presets this episode needs (defaults: workshop + archive).
@@ -136,6 +186,7 @@ export class CinematicScene{
  bg(which){return this.backgrounds[which]||this.backgrounds[this.scenePair.big]||Object.values(this.backgrounds)[0];}
  draw(canvas,ms){
   const c=canvas.getContext('2d',{alpha:false});c.imageSmoothingEnabled=false;ms=Math.max(0,Math.min(this.ep.durationMs-1,ms));
+  this.qaPanels=[];
   if(ms<this.ep.cutMs)this.big(c,ms);else this.small(c,ms-this.ep.cutMs);
   vignette(c);this.hud(c,ms);this.caption(c,ms);
  }
@@ -144,7 +195,7 @@ export class CinematicScene{
   // The opening holds on a portrait. Zoom is short and settles at 1.045.
   const z=lerp(1,1.045,ease(tm/1100));c.save();c.translate(850,510);c.scale(z,z);c.translate(-850,-510);
   spotlight(c,870,118,829,1010,.17);
-  const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);frontActor(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
+  const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);this.drawActorBig(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
   // Foreground occlusion is deliberately independent from the portrait.
   rect(c,291,799,1320,21,'#654a2f');rect(c,294,820,1313,32,'#30271e');rect(c,393,801,1081,4,'#b18d4e');
   panel(c,771,804,158,48);text(c,this.ep.actor.name,850,812,30,'#d7bd72','center');
@@ -159,7 +210,7 @@ export class CinematicScene{
   const start=460,end=1392,travel=ease((tm-3100)/4300),x=lerp(start,end,travel),foot=lerp(741,682,clamp((x-1290)/130));
   const walking=tm>3100&&tm<7400;
   books(c,373,747,4,.69);
-  sideActor(c,x,foot,6.1,tm,this.ep.actor,tm>8400?'celebrate':walking);
+  this.drawActorSmall(c,x,foot,6.1,tm,this.ep.actor,tm>8400?'celebrate':walking);
   // The key is authored as a prop; it leaves the archive and follows the hand.
   const pick=ease((tm-3550)/550),kx=lerp(697,x+117,pick),ky=lerp(602,foot-94,pick);if(tm>1300)key(c,kx,ky,.67);
   if(tm<2800)question(c,x+70,foot-251,ease((tm-200)/300));
@@ -167,12 +218,13 @@ export class CinematicScene{
   if(tm>6900){const k=ease((tm-6900)/400);c.save();c.globalAlpha=k;panel(c,1070,302,330,82);text(c,t('extracted'),1235,325,30,'#acd4af','center');c.restore();}
  }
  big(c,tm){
+  if(usesNativeEvents(this.ep))return this.bigFromEvents(c,tm);
   if(!this.ep.visualBeats)return this.bigLegacy(c,tm);
   const e=this.ep.visualBeats,l=this.ep.componentLabels||{};
   c.drawImage(this.bg(this.scenePair.big),0,0);
   const z=lerp(1,1.045,ease(tm/1100));c.save();c.translate(850,510);c.scale(z,z);c.translate(-850,-510);
   spotlight(c,870,118,829,1010,.17);
-  const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);frontActor(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
+  const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);this.drawActorBig(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
   rect(c,291,799,1320,21,'#654a2f');rect(c,294,820,1313,32,'#30271e');rect(c,393,801,1081,4,'#b18d4e');
   panel(c,771,804,158,48);text(c,this.ep.actor.name,850,812,30,'#d7bd72','center');
   if(e.collectAt!=null){
@@ -205,6 +257,7 @@ export class CinematicScene{
   c.restore();
  }
  small(c,tm){
+  if(usesNativeEvents(this.ep))return this.smallFromEvents(c,tm);
   if(!this.ep.visualBeats)return this.smallLegacy(c,tm);
   const e=this.ep.visualBeats,l=this.ep.componentLabels||{},ms=tm+this.ep.cutMs;
   c.drawImage(this.bg(this.scenePair.small),0,0);spotlight(c,846,158,828,746,.22);
@@ -213,7 +266,7 @@ export class CinematicScene{
   const start=470,end=1390,walkAt=e.walkAt??15400,travel=ease((ms-walkAt)/3800),x=lerp(start,end,travel),foot=lerp(741,682,clamp((x-1290)/130));
   const walking=ms>walkAt&&ms<walkAt+3800;
   if(e.closeAt!=null)drawOpenBook(c,{x:365,y:640,w:178,h:95,closed:ease((ms-e.closeAt)/650),mark:ms>(e.markAt??0)});
-  sideActor(c,x,foot,6.1,tm,this.ep.actor,ms>(e.rewardAt??1e12)?'celebrate':walking);
+  this.drawActorSmall(c,x,foot,6.1,tm,this.ep.actor,ms>(e.rewardAt??1e12)?'celebrate':walking);
   if(e.testAt!=null&&ms>e.testAt){
    const correct=ms>(e.correctAt??1e12),reveal=clamp((ms-(e.checkAt??ms))/350),typed=clamp((ms-e.testAt-580)/500);
    const answer=correct?(l.rightAnswer||''):(l.wrongAnswer||'').slice(0,Math.floor(typed*(l.wrongAnswer||'').length));
@@ -232,9 +285,92 @@ export class CinematicScene{
    drawStepBar(c,{x:510,y:120,w:900,steps,current:cur,title:l.stepBarTitle,alpha:ease((ms-e.stepsAt)/280)});
   }
  }
+ /** Native events[] draw path (absolute ms). visualBeats still use the legacy enhanced path for pixel parity. */
+ bigFromEvents(c,tm){
+  const st=foldEvents(this.ep,tm);
+  c.drawImage(this.bg(this.scenePair.big),0,0);
+  const z=lerp(1,1.045,ease(tm/1100));c.save();c.translate(850,510);c.scale(z,z);c.translate(-850,-510);
+  spotlight(c,870,118,829,1010,.17);
+  const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);
+  this.drawActorBig(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
+  rect(c,291,799,1320,21,'#654a2f');rect(c,294,820,1313,32,'#30271e');rect(c,393,801,1081,4,'#b18d4e');
+  panel(c,771,804,158,48);text(c,this.ep.actor.name,850,812,30,'#d7bd72','center');
+  if(st.timeline){
+   const a=ease((tm-st.timeline.at)/300);
+   drawTimeline(c,{x:480,y:140,w:720,steps:st.timeline.steps,activeIndex:st.timeline.activeIndex,progress:st.timeline.progress,title:st.timeline.title,alpha:a});
+   this.qaPanels.push({kind:'timeline',x:480,y:140,w:720,h:80});
+  }
+  if(st.ring){
+   drawCountdownRing(c,{x:st.ring.x??1680,y:st.ring.y??200,progress:st.ring.progress,label:st.ring.label,mode:st.ring.mode,alpha:ease((tm-st.ring.at)/280)});
+   this.qaPanels.push({kind:'ring',x:(st.ring.x??1680)-62,y:(st.ring.y??200)-62,w:124,h:140});
+  }
+  // Compare vs speech: one focus — speech wins when both active.
+  if(st.speech){
+   drawSpeechBubble(c,{x:st.speech.x??920,y:st.speech.y??220,text:st.speech.text,tail:st.speech.tail,tone:st.speech.tone,alpha:ease((tm-st.speech.at)/250)});
+   this.qaPanels.push({kind:'speech',x:st.speech.x??920,y:st.speech.y??220,w:280,h:110});
+  }else if(st.compare){
+   // Right of portrait face (≈590–830); keep cards off the head bbox for qa_stills.
+   drawCompareCards(c,{x:980,y:150,w:620,title:st.compare.title,leftTitle:st.compare.leftTitle,rightTitle:st.compare.rightTitle,leftBody:st.compare.leftBody,rightBody:st.compare.rightBody,highlight:tm>st.compare.at+1500?'right':null,alpha:ease((tm-st.compare.at)/300)});
+   this.qaPanels.push({kind:'compare',x:980,y:150,w:620,h:220});
+  }
+  if(st.stepbar){
+   drawStepBar(c,{x:510,y:700,w:900,steps:st.stepbar.steps,current:st.stepbar.current,title:st.stepbar.title,alpha:ease((tm-st.stepbar.at)/280)});
+   this.qaPanels.push({kind:'stepbar',x:510,y:700,w:900,h:120});
+  }
+  if(st.inventory){
+   const count=Math.min(7,st.inventory.countFrom+Math.floor(Math.max(0,tm-st.inventory.at)/410));
+   drawInventory(c,{x:316,y:164,w:265,count,title:st.inventory.title,alpha:ease((tm-st.inventory.at)/330)});
+  }
+  c.restore();
+ }
+ smallFromEvents(c,tm){
+  const ms=tm+this.ep.cutMs,st=foldEvents(this.ep,ms);
+  c.drawImage(this.bg(this.scenePair.small),0,0);spotlight(c,846,158,828,746,.22);
+  for(let x=358;x<1396;x+=29)rect(c,x,762+Math.sin(x/150)*3,7,5,'#547e65');
+  let x=520,foot=741,pose='idle';
+  if(st.walk){
+   const travel=ease((ms-st.walk.at)/st.walk.durationMs);
+   x=lerp(st.walk.from,st.walk.to,travel);
+   foot=lerp(741,682,clamp((x-1290)/130));
+   pose=ms<st.walk.at+st.walk.durationMs?'walk':(st.celebrate?'celebrate':'idle');
+  }else if(st.celebrate)pose='celebrate';
+  if(st.path){
+   const nodes=st.path.nodes.map(n=>{
+    let alphaN=1,yy=n.y;
+    if(Math.abs(n.x-x)<90){alphaN=0.35;yy=n.y-36;}
+    return {...n,y:yy,_a:alphaN};
+   });
+   drawPathNodes(c,{nodes,edges:st.path.edges,alpha:ease((ms-st.path.at)/300)});
+   this.qaPanels.push({kind:'path',nodes:st.path.nodes});
+  }
+  this.drawActorSmall(c,x,foot,6.1,tm,this.ep.actor,pose);
+  if(st.speech){
+   const bx=Math.max(80,Math.min(1600,x+40));
+   const by=foot-280;
+   drawSpeechBubble(c,{x:bx,y:by,text:st.speech.text,tail:st.speech.tail||'bl',tone:st.speech.tone,alpha:ease((ms-st.speech.at)/250)});
+   this.qaPanels.push({kind:'speech',x:bx,y:by,w:280,h:110});
+  }
+  if(st.ring){
+   drawCountdownRing(c,{x:st.ring.x??380,y:st.ring.y??220,progress:st.ring.progress,label:st.ring.label,mode:st.ring.mode,alpha:ease((ms-st.ring.at)/280)});
+   this.qaPanels.push({kind:'ring',x:(st.ring.x??380)-62,y:(st.ring.y??220)-62,w:124,h:140});
+  }
+  if(st.timeline){
+   drawTimeline(c,{x:320,y:180,w:680,steps:st.timeline.steps,activeIndex:st.timeline.activeIndex,progress:st.timeline.progress,title:st.timeline.title,alpha:ease((ms-st.timeline.at)/300)});
+   this.qaPanels.push({kind:'timeline',x:320,y:180,w:680,h:80});
+  }
+  if(st.reward)drawRewardBadge(c,{x:1390,y:294,label:st.reward.label||t('reward'),alpha:ease((ms-st.reward.at)/350)});
+  if(st.door.openAt!=null&&ms>st.door.openAt){const open=ease((ms-st.door.openAt)/850);rect(c,1510,225,174,376,'#151e17');rect(c,1515,228,174*open,370,'#ab985d');rect(c,1518,230,168*open,363,'#e1d19c');rect(c,1510+174*open,225,Math.max(8,174*(1-open)),376,'#354431');}
+ }
  hud(c,ms){
   if(ms<this.ep.cutMs)return;
-  const local=ms-this.ep.cutMs,current=this.ep.visualBeats?(ms<(this.ep.visualBeats.checkAt??ms+1)?1:2):(local<3400?0:local<6400?1:2),chapters=this.ep.chapters;
+  const local=ms-this.ep.cutMs;
+  let current=local<3400?0:local<6400?1:2;
+  if(this.ep.visualBeats)current=ms<(this.ep.visualBeats.checkAt??ms+1)?1:2;
+  if(usesNativeEvents(this.ep)){
+   const st=foldEvents(this.ep,ms);
+   current=st.reward?2:(st.walk||st.path?1:0);
+  }
+  const chapters=this.ep.chapters||[];
   rect(c,0,0,W,57,'#101512');
   chapters.forEach((name,i)=>{const x=i*W/chapters.length,w=W/chapters.length;if(i<=current)rect(c,x,0,w,57,i===current?'#383c33':'#292e27');if(i>0)rect(c,x,15,2,29,'#676c5b');text(c,name,x+w/2,14,30,i===current?'#e4e3cd':'#818977','center')});
   text(c,`${this.ep.author} · ${this.ep.title}`,1854,82,24,'#778372','right');

@@ -5,7 +5,19 @@
 export const LOCALES = ['zh', 'en', 'ja'];
 export const DEFAULT_LOCALE = 'zh';
 
-/** Same Fusion Pixel family covers Latin / CJK / kana; preload text must match locale. */
+/**
+ * Font face mapping by locale.
+ * Vendored pack is Fusion Pixel 12px Prop (zh_hans CSS) which already subsets
+ * Basic Latin + Hiragana + Katakana + Hangul + CJK Unified (~92%).
+ * A separate TakWolf `ja` webfont file is NOT vendored — use this CSS + full
+ * glyph preload for ja; scan rare Extension-A/B names before shipping.
+ */
+export const FONT_CSS_BY_LOCALE = {
+  zh: 'assets/fonts/Fusion-Pixel-12px-Proportional-Simplified-Chinese.css',
+  en: 'assets/fonts/Fusion-Pixel-12px-Proportional-Simplified-Chinese.css',
+  ja: 'assets/fonts/Fusion-Pixel-12px-Proportional-Simplified-Chinese.css',
+};
+
 export const FONT_FAMILY =
   '"Fusion Pixel 12px Proportional Simplified Chinese",monospace';
 

@@ -114,20 +114,26 @@ python3 <技能目录>/scripts/voice_track.py --lines lines-abs.json --work <wor
 node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
   --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
-  --out sample.mp4 --audio voice.wav --preset draft --threads 2
+  --out sample.mp4 --audio voice.wav --preset draft --workers 2 --threads 2
 # 只重渲后半段（秒）：
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
   --out sample.mp4 --preset draft --from 10 --to 20
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
-  --out sample.mp4 --audio voice.wav --preset final --threads 2
+  --out sample.mp4 --audio voice.wav --preset final --workers 2 --threads 2
+# 回滚单进程：
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
+  --out sample.mp4 --preset final --workers 1
 # 轻量 QA（声明 bbox；挡脸夹具应 fail）
 node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep zh-path --out qa-stills
 node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep occlusion-fail --out qa-fail --times 1.0 ; echo "expect fail"
 ```
 
-- `--preset draft`：约 15fps、更快 x264、`verify-repeat=1`，输出文件名带 `.draft`；**不可当作交付成片**。
-- `--preset final`：30fps、完整确定性自检、交付档；输出带 `.final`。
-- `--from` / `--to`（秒）局部重渲，改完一段不必整片等数分钟。
+- `--preset draft`：约 15fps、更快 x264、低 verify，默认 `--workers 2`；输出 `.draft`；**不可当作交付成片**。
+- `--preset final`：30fps、完整确定性自检、交付档；默认 `--workers 2`；输出 `.final`。
+- `--workers 1..4`：多 **Chromium 进程**分帧段并行截取再按序 stitch；`--workers 1` 回滚到单进程 image2pipe（与 Phase 1 语义等价）。同 browser 多 page **更慢，不要用**。
+- PNG 路径**禁止** CDP `optimizeForSpeed`（破坏 alpha / 字节合同）。
+- `--from` / `--to`（秒）局部重渲。
+- 日语产品化清单：[references/ja-productization.md](references/ja-productization.md)（`?ep=ja`）。
 
 1280×720 视口 × dsf 1.5 直接得到 1920×1080 截图。编码默认两线程，不能把全机吃满。
 

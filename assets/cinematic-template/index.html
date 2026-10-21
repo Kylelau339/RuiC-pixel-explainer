@@ -1,9 +1,9 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>粗像素电影场景</title><link rel="stylesheet" href="assets/fonts/Fusion-Pixel-12px-Proportional-Simplified-Chinese.css"><style>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>粗像素电影场景</title><link id="pixel-font" rel="stylesheet" href="assets/fonts/Fusion-Pixel-12px-Proportional-Simplified-Chinese.css"><style>
 *{box-sizing:border-box}body{margin:0;background:#050806;color:#dbc69a;font:13px -apple-system,'PingFang SC',sans-serif;overflow:hidden}.viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}.frame{width:1920px;height:1080px;position:relative;transform-origin:center;flex:none}.frame canvas{display:block;width:1920px;height:1080px}.loading{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;background:#080d09;z-index:3}.controls{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:9px;padding:8px 12px;background:#112019ee;align-items:center;border:1px solid #435342;z-index:5;max-width:95vw}.controls button{color:#ddc995;background:#253328;border:1px solid #576b4c;padding:7px 11px;cursor:pointer}.controls input{width:min(43vw,550px);accent-color:#d8b669}.controls small{white-space:nowrap}.rec .controls{display:none}a{color:#ccb373}
 </style></head><body><div class="viewport"><div class="frame"><canvas width="1920" height="1080" id="stage"></canvas><div class="loading" id="loading">…</div></div></div><div class="controls"><button id="play">▶</button><input id="seek" type="range" min="0" max="19999" step="1" value="0" aria-label="seek"><small id="time">00:00 / 00:20</small><button id="mute">🔊</button></div><audio src="assets/voice.wav" id="audio" preload="metadata"></audio><script type="module">
 import {CinematicScene} from './scene.mjs';
 import {componentGlyphs} from './components.mjs';
-import {normalizeLocale,htmlLang,PRELOAD_EXTRA,FONT_FAMILY,t,STRINGS} from './i18n.mjs';
+import {normalizeLocale,htmlLang,PRELOAD_EXTRA,FONT_FAMILY,FONT_CSS_BY_LOCALE,t,STRINGS} from './i18n.mjs';
 
 const params=new URLSearchParams(location.search);
 const epMap={en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json','occlusion-fail':'./episode.occlusion-fail.json'};
@@ -11,6 +11,7 @@ const epFile=epMap[params.get('ep')]||'./episode.json';
 const ep=await fetch(epFile).then(r=>r.json());
 const locale=normalizeLocale(ep.locale||'zh');
 document.documentElement.lang=htmlLang(locale);
+document.getElementById('pixel-font').href=FONT_CSS_BY_LOCALE[locale]||FONT_CSS_BY_LOCALE.zh;
 document.title=`${ep.title} · coarse pixel`;
 document.getElementById('loading').textContent=STRINGS[locale]?.loading||t('loading',locale);
 document.getElementById('seek').max=String(ep.durationMs-1);

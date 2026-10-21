@@ -114,7 +114,7 @@
 }
 ```
 
-场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `episode.en.json`（预览加 `?ep=en`）；日文为 locale/字体脚手架（`?ep=ja`），完整日片在后续阶段。Phase 1 附带 `demo-en-20s.draft.mp4`（英文字幕 / draft 15fps；音轨仍为模板中文示范 wav，换 TTS 后再出 final）。
+场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
 
 **一拍一个因果变化**：资料飞入时看库存，检索失败时看结果，核对时看回答与参考答案，成功后才给奖励。
 面板与角色行动分开编排（角色初始站位 / 行走经过区域 / 终点都要考虑）；绘制顺序是背景 → 人物与手持道具 → 奖励与 HUD，别让开门的矩形把奖章抹掉。
@@ -184,10 +184,25 @@ python3 <技能目录>/scripts/voice_track.py --lines lines-abs.json --work work
 node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
      --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
-     --audio voice.wav --preset draft --threads 2
+     --audio voice.wav --preset draft --workers 2 --threads 2
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
-     --audio voice.wav --preset final --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+     --audio voice.wav --preset final --workers 2 --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+# 回滚单进程：--workers 1
 ```
+
+## ⏱ 导出速度（Phase 3）
+
+实现：多 **Chromium 进程**分帧段 + 有序 stitch（非同 browser 多 page）；PNG **禁止** CDP `optimizeForSpeed`。回滚：`--workers 1`（单进程 image2pipe，与 Phase 1 语义等价）。
+
+**本机实测**（2026-10-21 · Cloud Agent VM · 4 vCPU · 负载 `zh-path` **8s@30fps=240 帧** · `1920×1080` · dsf 1.5 · verify-repeat=1）：
+
+| workers | wall | vs workers=1 | capture 墙钟 |
+|---|---|---|---|
+| 1 | **77.5s** | 1.0× | ≈76.9s |
+| 2 | **43.6s** | **1.8×** | ≈40.0s |
+| 4 | **27.2s** | **2.9×** | ≈23.6s |
+
+结论：`--workers 4` 达到 ≥2× 墙钟；`--workers 2` 约 1.8×。完整 20s@30fps（600 帧）可按比例外推，以本机日志 `计时 … wall=…s workers=N` 为准。跨环境像素不保证；并行后确定性双截仍须通过。
 
 **A 路线**先注册生成的角色资产，再把 `sprite-actor.mjs` 接到模板上（完整接法见 `assets/imagegen-template/INTEGRATION.md`）：
 

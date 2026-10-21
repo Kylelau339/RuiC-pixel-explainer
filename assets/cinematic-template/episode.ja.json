@@ -1,45 +1,63 @@
 {
-  "id": "memory-key-ja-scaffold",
-  "locale": "ja",
-  "title": "記憶の鍵",
+  "id": "ja-notes-gap-20s",
+  "title": "メモのすき間",
   "author": "RuiC",
+  "locale": "ja",
+  "sceneId": "study",
+  "scenes": { "big": "study", "small": "terminal" },
   "durationMs": 20000,
   "fps": 30,
   "cutMs": 10000,
-  "sceneId": "workshop",
-  "scenes": {
-    "big": "workshop",
-    "small": "archive"
-  },
+  "actorMode": "code",
   "actor": {
     "name": "ラン",
-    "hair": "#282c29",
-    "hairLight": "#41433a",
-    "coat": "#334637",
-    "coatLight": "#50634c",
-    "scarf": "#a55437",
+    "hair": "#2a3030",
+    "hairLight": "#414850",
+    "coat": "#3a4a52",
+    "coatLight": "#5a6a70",
+    "scarf": "#c4a35a",
     "skin": "#f2deca",
     "skinLight": "#faecd6",
     "skinShade": "#d4bea5",
     "clip": "#c79c4a",
-    "hairStyle": "bob",
-    "headwear": "cap",
-    "headwearColor": "#293536",
-    "headwearLight": "#48585a",
-    "headwearAccent": "#b9c2a4",
-    "eye": "#984352"
+    "hairStyle": "short",
+    "headwear": "beret",
+    "headwearColor": "#3a4048",
+    "headwearLight": "#5a6068",
+    "eye": "#3d5c6e"
   },
-  "chapters": ["見た", "取り出し", "話す"],
-  "voice": [{"at": 600, "end": 8352}, {"at": 10600, "end": 18503}],
-  "lines": [
-    {"at": 600, "end": 2250, "text": "気づいた[[こと]]ある？"},
-    {"at": 2250, "end": 4400, "text": "メモは[[増える]]のに、"},
-    {"at": 4400, "end": 6810, "text": "思い出せるのは"},
-    {"at": 6810, "end": 8900, "text": "[[ほとんど]]ない。"},
-    {"at": 10600, "end": 13500, "text": "記憶は詰め込むこと[[じゃない]]、"},
-    {"at": 13500, "end": 15730, "text": "[[取り出す]]こと。"},
-    {"at": 15730, "end": 17330, "text": "ノートを[[閉じて]]、"},
-    {"at": 17330, "end": 19600, "text": "一度[[説明]]する。"}
+  "chapters": ["取る", "分ける", "話す"],
+  "componentLabels": {
+    "compareLeft": "保存",
+    "compareRight": "理解",
+    "compareLeftBody": "メモ増",
+    "compareRightBody": "説明可",
+    "compareTitle": "対比",
+    "steps": ["取る", "分ける", "名づける", "話す"],
+    "stepBarTitle": "手順",
+    "reward": "本当のメモ"
+  },
+  "events": [
+    { "at": 600, "type": "stepbar.show", "params": { "activeIndex": 0, "steps": ["取る", "分ける", "名づける", "話す"] } },
+    { "at": 2800, "type": "compare.show", "params": { "leftKey": "compareLeft", "rightKey": "compareRight", "leftBodyKey": "compareLeftBody", "rightBodyKey": "compareRightBody" } },
+    { "at": 5500, "type": "stepbar.advance", "params": { "by": 1 } },
+    { "at": 10500, "type": "stepbar.show", "params": { "activeIndex": 2, "steps": ["取る", "分ける", "名づける", "話す"] } },
+    { "at": 10800, "type": "actor.walk", "params": { "from": 500, "to": 1100, "durationMs": 4000 } },
+    { "at": 14000, "type": "stepbar.advance", "params": { "by": 1 } },
+    { "at": 17000, "type": "reward.show", "params": { "labelKey": "reward" } },
+    { "at": 17000, "type": "actor.celebrate", "params": {} }
   ],
-  "_note": "JA scaffold only — font preload + i18n labels work; full JA sample video / TTS productization is Phase 3."
+  "voice": [
+    { "at": 600, "end": 9200 },
+    { "at": 10500, "end": 19500 }
+  ],
+  "lines": [
+    { "at": 600, "end": 2800, "text": "メモはすぐ[[増える]]。" },
+    { "at": 2800, "end": 5500, "text": "理解は[[遅れる]]。" },
+    { "at": 5500, "end": 9000, "text": "だから[[分ける]]。" },
+    { "at": 10500, "end": 13500, "text": "すき間に[[名を]]つける。" },
+    { "at": 13500, "end": 16500, "text": "声に出して[[教える]]。" },
+    { "at": 16500, "end": 19500, "text": "それが[[本当の]]メモ。" }
+  ],
+  "_jaChecklist": "字幕≤13全角/行；プレロードに labels+lines；TTS は利用者バックエンド（未同梱）"
 }

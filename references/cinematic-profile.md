@@ -10,7 +10,7 @@ assets/cinematic-template/ 中：scene.mjs 独立绘制人物、后景、道具�
 
 **场景点选**：`episode.sceneId` / `scenes.{big,small}` 从六套预设里选（`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`），见 `scene-presets.mjs`。不必从修理铺抄起；保持粗像素少纹理。新地点若预设不够，再扩 `scene-presets.mjs`。
 
-**语言**：`episode.locale` 为 `zh`|`en`|`ja`（ja 为脚手架）。组件默认文案走 `i18n.mjs`；`index.html` 按 locale 预载字形。英样例：`episode.en.json`（预览 `?ep=en`）。
+**语言**：`episode.locale` 为 `zh`|`en`|`ja`。组件默认文案走 `i18n.mjs`；`index.html` 按 locale 预载字形（`FONT_CSS_BY_LOCALE`）。英：`?ep=en`；日：`?ep=ja`（产品化清单见 [ja-productization.md](ja-productization.md)）。
 
 ## 20 秒示范结构
 

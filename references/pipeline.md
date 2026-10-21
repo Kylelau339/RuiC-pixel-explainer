@@ -181,9 +181,11 @@ node scripts/render_episode.mjs --url http://127.0.0.1:5274/ --ep <slug> \
 ```
 
 - 原理：画面是**时间 t 的纯函数**，脚本把 t 定到每帧、截 `.frame`、按序喂 ffmpeg —— 与实时录屏无关，逐帧确定。
-- `--preset draft`：更快预览（默认约 15fps、`veryfast`、低 verify）；输出名带 `.draft`，**勿当交付**。
-- `--preset final`：完整自检与交付编码；输出名带 `.final`。
+- `--preset draft`：更快预览（默认约 15fps、`veryfast`、低 verify、`--workers 2`）；输出名带 `.draft`，**勿当交付**。
+- `--preset final`：完整自检与交付编码；默认 `--workers 2`；输出名带 `.final`。
+- `--workers 1..4`：多 Chromium **进程**分帧段；`--workers 1` 回滚单进程。PNG **禁止** `optimizeForSpeed`。
 - `--from` / `--to`（秒）：只渲区间，改完一段就局部重渲。
+- 日语：见 [ja-productization.md](ja-productization.md)。
 - 分辨率口径：`--dsf 1.5` 让 1280×720 视口截图直接落在 1920×1080；要 720p 原样就 `--dsf 1 --size 1280x720`。
 - 耗时量级（M 系列 Mac）：约 **0.22 秒/帧** → 15 秒片 ≈ 1.6 分钟；draft 更短。
 - 有音轨时按画面长度补齐静音（不用 `-shortest`），片子不会被音频截短。

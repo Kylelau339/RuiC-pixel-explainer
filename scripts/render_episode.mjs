@@ -166,11 +166,14 @@ function buildFfmpegArgs(inputKind) {
   if (inputKind === 'pipe') {
     args.push('-f', 'image2pipe', '-vcodec', 'png', '-framerate', String(fps), '-i', '-');
   } else {
+    // Input options only; -frames:v must be an output option (after all -i) or ffmpeg
+    // applies it to the next input (e.g. audio) and fails.
     args.push('-framerate', String(fps), '-start_number', String(inputKind.startNumber),
-      '-i', path.join(inputKind.framesDir, 'frame-%06d.png'), '-frames:v', String(frameCount));
+      '-i', path.join(inputKind.framesDir, 'frame-%06d.png'));
   }
   if (audio) args.push('-i', audio);
   args.push('-c:v', 'libx264', '-threads', String(threads), '-preset', x264Preset, '-crf', crf, '-pix_fmt', 'yuv420p');
+  if (inputKind !== 'pipe') args.push('-frames:v', String(frameCount));
   if (wantW !== shotW || wantH !== shotH) args.push('-vf', `scale=${wantW}:${wantH}:flags=neighbor`);
   if (audio) args.push('-af', 'apad', '-c:a', 'aac', '-b:a', '192k', '-t', (frameCount / fps).toFixed(3));
   args.push('-movflags', '+faststart', '-y', out);

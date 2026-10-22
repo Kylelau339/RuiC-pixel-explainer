@@ -29,7 +29,7 @@
 
 | 主题 | 必开 | 可选 | 备注 |
 |---|---|---|---|
-| **物理 / 自然 科普** | `world.show/set`（质点+吸引+轨迹；split 双世界） | 单条 `focusUi`；字幕 | 见 [kexue-visual.md](kexue-visual.md)；**禁** talking-head / Path 标签冒充 |
+| **物理 / 自然 科普** | 必选 kexue pattern + `world.show/set` | 单条 `focusUi`；字幕 | 目录 [kexue-patterns.md](kexue-patterns.md)；合同 [kexue-visual.md](kexue-visual.md) |
 | 记忆 / 提取 | Inventory → Recall → Quiz → Feedback → Reward | Marker, OpenBook | `visualBeats` 或等价 `events` |
 | 对比抉择 | CompareCards → Feedback/Reward | StepBar, Speech | 科普因果对比请用 split world，不用文案卡 |
 | 步骤 / 结构 | Timeline + StepBar + Path | Ring, Speech, Compare | 中文非记忆秀 `episode.zh-path.json` |

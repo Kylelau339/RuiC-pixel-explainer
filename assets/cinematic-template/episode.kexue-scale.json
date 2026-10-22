@@ -1,0 +1,63 @@
+{
+  "id": "kexue-scale-ladder",
+  "title": "数量级·阶梯",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "scale-ladder",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：三球依次长大，爬升标记走过阶梯；大小差是运动出来的。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "scale-ladder",
+        "backdrop": "bench",
+        "scale": {
+          "rungs": [
+            { "label": "米", "targetR": 16, "color": "#7eb8a4" },
+            { "label": "百米", "targetR": 48, "color": "#c9a24a" },
+            { "label": "千米", "targetR": 120, "color": "#b84a3a" }
+          ]
+        }
+      }
+    },
+    {
+      "at": 10000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "差一个数量级＝差很多",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [{ "at": 400, "end": 13000 }],
+  "lines": [
+    { "at": 400, "end": 3500, "text": "别只记数字。" },
+    { "at": 3500, "end": 7500, "text": "看它们[[长]]到多大。" },
+    { "at": 7500, "end": 11000, "text": "每一级，都是一个数量级。" },
+    { "at": 11000, "end": 13500, "text": "差一级，就差[[很多]]。" }
+  ]
+}

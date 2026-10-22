@@ -1,0 +1,63 @@
+{
+  "id": "kexue-dual-inertia",
+  "title": "惯性·双世界",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "dual-world",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：左无外力直飞，右被拉弯；同一出发，两种命运。"
+  },
+  "sceneId": "moonatelier",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {
+    "worldLeft": "无外力 · 直飞",
+    "worldRight": "有拉力 · 弯轨"
+  },
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "dual-world",
+        "layout": "split",
+        "left": { "mode": "coast", "massR": 16, "seed": { "vx": 220, "vy": 40 } },
+        "right": { "mode": "attract", "mu": 3.4e6, "massR": 16, "seed": { "vx": 220, "vy": 40 } },
+        "leftLabelKey": "worldLeft",
+        "rightLabelKey": "worldRight"
+      }
+    },
+    {
+      "at": 9000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "外力改变路径",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [{ "at": 400, "end": 13000 }],
+  "lines": [
+    { "at": 400, "end": 3200, "text": "同一出手，两种结局。" },
+    { "at": 3200, "end": 7000, "text": "左边：没有外力，一直[[直飞]]。" },
+    { "at": 7000, "end": 11000, "text": "右边：有拉力，轨迹[[弯了]]。" },
+    { "at": 11000, "end": 13500, "text": "力，写在路径上。" }
+  ]
+}

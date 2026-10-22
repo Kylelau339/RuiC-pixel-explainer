@@ -7,7 +7,15 @@ import {WORLD_GLYPHS} from './world-props.mjs';
 import {normalizeLocale,htmlLang,PRELOAD_EXTRA,FONT_FAMILY,FONT_CSS_BY_LOCALE,t,STRINGS} from './i18n.mjs';
 
 const params=new URLSearchParams(location.search);
-const epMap={en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json',gravity:'./episode.zh-gravity.json','zh-gravity':'./episode.zh-gravity.json','occlusion-fail':'./episode.occlusion-fail.json'};
+const epMap={
+  en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json',
+  gravity:'./episode.zh-gravity.json','zh-gravity':'./episode.zh-gravity.json',
+  'kexue-dual':'./episode.kexue-dual.json',dual:'./episode.kexue-dual.json',
+  'kexue-scale':'./episode.kexue-scale.json',scale:'./episode.kexue-scale.json',
+  'kexue-flow':'./episode.kexue-flow.json',flow:'./episode.kexue-flow.json',
+  'kexue-balance':'./episode.kexue-balance.json',balance:'./episode.kexue-balance.json',
+  'occlusion-fail':'./episode.occlusion-fail.json'
+};
 const epFile=epMap[params.get('ep')]||'./episode.json';
 const ep=await fetch(epFile).then(r=>r.json());
 const locale=normalizeLocale(ep.locale||'zh');

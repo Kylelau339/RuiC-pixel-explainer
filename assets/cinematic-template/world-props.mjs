@@ -430,4 +430,222 @@ export function gravityDemoConfigs() {
   };
 }
 
-export const WORLD_GLYPHS = '落下环绕向心引力无有轨道实验台';
+/** Catalog ids — agents must pick one for 科普 / 原理 themes. */
+export const KEXUE_PATTERNS = [
+  'orbit-pull',
+  'dual-world',
+  'scale-ladder',
+  'flow-process',
+  'balance-scale',
+];
+
+function easeInOut(t) {
+  const x = clamp(t, 0, 1);
+  return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+}
+
+function disc(c, x, y, r, color) {
+  const cx = Math.round(x),
+    cy = Math.round(y),
+    rr = Math.max(2, Math.round(r));
+  for (let dy = -rr; dy <= rr; dy++) {
+    const half = Math.floor(Math.sqrt(Math.max(0, rr * rr - dy * dy)));
+    if (half > 0) rect(c, cx - half, cy + dy, half * 2, 1, color);
+  }
+}
+
+/**
+ * scale-ladder — orders of magnitude with moving props (not static icons).
+ * cfg.rungs: [{label, targetR, color}] length 2–4
+ * Mute: sizes grow on a ladder; a highlight climbs; relative scale is visible without text.
+ */
+export function drawScaleLadder(c, cfg, localMs, opts = {}) {
+  drawLabBackdrop(c, {variant: opts.backdrop || 'bench'});
+  const rungs = cfg.rungs || [
+    {label: '小', targetR: 14, color: '#7eb8a4'},
+    {label: '中', targetR: 42, color: '#c9a24a'},
+    {label: '大', targetR: 110, color: '#b84a3a'},
+  ];
+  const n = rungs.length;
+  const baseY = opts.baseY ?? 780;
+  const left = opts.left ?? 280;
+  const span = opts.span ?? 1360;
+  // ladder rail
+  rect(c, left - 40, baseY - 20, span + 80, 16, '#2a3228');
+  rect(c, left - 40, 180, 16, baseY - 180, '#2a3228');
+  rect(c, left + span + 24, 180, 16, baseY - 180, '#2a3228');
+
+  const t = localMs / 1000;
+  // reveal rungs one by one; each grows from tiny → target
+  for (let i = 0; i < n; i++) {
+    const appear = i * 2.2;
+    const grow = easeInOut(clamp((t - appear) / 1.6, 0, 1));
+    if (grow <= 0) continue;
+    const x = left + (span * (i + 0.5)) / n;
+    const r = lerp(4, rungs[i].targetR, grow);
+    const y = baseY - r - 8;
+    // rung tick
+    rect(c, x - 3, baseY - 8, 6, 28, '#6a7a55');
+    disc(c, x, y, r, rungs[i].color || '#c9a24a');
+    if (grow > 0.85 && rungs[i].label) {
+      c.font = '28px "Fusion Pixel Proportional", sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'top';
+      c.fillStyle = '#c8c4a8';
+      c.fillText(rungs[i].label, Math.round(x), Math.round(y - r - 40));
+    }
+  }
+  // climbing marker (shows “ladder” motion)
+  const climbT = easeInOut(clamp((t - 0.4) / Math.max(1, n * 2.2), 0, 1));
+  const mx = left + climbT * span;
+  rect(c, mx - 10, 200, 20, 14, '#e0c46a');
+  rect(c, mx - 3, 214, 6, baseY - 230, '#8a7a40');
+  return {pattern: 'scale-ladder', climbT};
+}
+
+/**
+ * flow-process — A→B→C transformation on stage (not StepBar text).
+ * cfg.stations: [{label, color}] length 3
+ * Mute: prop morphs and travels A→B→C; stations light as it arrives.
+ */
+export function drawFlowProcess(c, cfg, localMs, opts = {}) {
+  drawLabBackdrop(c, {variant: opts.backdrop || 'bench'});
+  const stations = cfg.stations || [
+    {label: '固', color: '#8ab4c8'},
+    {label: '液', color: '#4a8ac8'},
+    {label: '气', color: '#c8c4a8'},
+  ];
+  const ys = opts.y ?? 520;
+  const xs = [360, 960, 1560];
+  const t = localMs / 1000;
+  // pipes / conveyor
+  rect(c, xs[0], ys + 40, xs[2] - xs[0], 10, '#3a4a38');
+  for (let i = 0; i < 3; i++) {
+    const lit = t > i * 3.2;
+    disc(c, xs[i], ys, 54, lit ? stations[i].color : '#2a3228');
+    disc(c, xs[i], ys, 28, lit ? '#0a1210' : '#1a2218');
+    c.font = '28px "Fusion Pixel Proportional", sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'top';
+    c.fillStyle = lit ? '#e4d7a8' : '#5a6658';
+    c.fillText(stations[i].label || '', xs[i], ys + 70);
+  }
+  // prop phase: 0 solid cube → 1 melt to blob → 2 rise as gas dots
+  const phaseDur = 3.2;
+  const phase = Math.min(2, Math.floor(t / phaseDur));
+  const local = (t - phase * phaseDur) / phaseDur;
+  const x = lerp(xs[Math.min(phase, 2)], xs[Math.min(phase + 1, 2)], easeInOut(clamp(local, 0, 1)));
+  if (phase === 0) {
+    const s = Math.round(lerp(48, 36, local));
+    rect(c, x - s / 2, ys - s / 2 - 10, s, s, '#a8d0e0');
+    rect(c, x - s / 2 + 6, ys - s / 2 - 4, s - 12, 8, '#d0e8f0');
+  } else if (phase === 1) {
+    const r = Math.round(lerp(22, 18, local));
+    disc(c, x, ys - 8, r, '#4a8ac8');
+    disc(c, x - 8, ys - 4, Math.max(6, r - 8), '#6aa8d8');
+  } else {
+    for (let i = 0; i < 7; i++) {
+      const ox = ((i * 37) % 40) - 20;
+      const rise = easeInOut(clamp(local, 0, 1)) * (80 + i * 12);
+      disc(c, x + ox, ys - 10 - rise, 5 + (i % 3), '#c8c4a8');
+    }
+  }
+  // forward chevrons (motion, not HUD soup)
+  for (let i = 0; i < 2; i++) {
+    const cx = (xs[i] + xs[i + 1]) / 2;
+    const on = t > (i + 0.5) * phaseDur;
+    rect(c, cx - 8, ys + 28, 16, 6, on ? '#e0c46a' : '#3a4a38');
+    rect(c, cx + 4, ys + 22, 10, 6, on ? '#e0c46a' : '#3a4a38');
+  }
+  return {pattern: 'flow-process', phase};
+}
+
+/**
+ * balance-scale — tipping beam shows unequal / equal weights (force made visible).
+ * cfg: {leftMass, rightMass} target weights; animate from 0.
+ * Mute: beam tips toward heavier side; pans move; no talking needed.
+ */
+export function drawBalanceScale(c, cfg, localMs, opts = {}) {
+  drawLabBackdrop(c, {variant: opts.backdrop || 'bench'});
+  const t = localMs / 1000;
+  const leftTarget = cfg.leftMass ?? 1;
+  const rightTarget = cfg.rightMass ?? 2;
+  // load-in animation
+  const leftW = leftTarget * easeInOut(clamp(t / 2.2, 0, 1));
+  const rightW = rightTarget * easeInOut(clamp((t - 1.2) / 2.2, 0, 1));
+  const tip = clamp((rightW - leftW) / Math.max(0.01, leftTarget + rightTarget), -1, 1);
+  const angle = tip * 0.32; // radians-ish visual
+  const cx = 960,
+    cy = 420;
+  // fulcrum
+  rect(c, cx - 18, cy, 36, 220, '#3a4a38');
+  disc(c, cx, cy, 22, '#c9a24a');
+  // beam (approximate rotation with offset pans)
+  const half = 420;
+  const lx = cx - Math.cos(angle) * half,
+    ly = cy - Math.sin(angle) * half;
+  const rx = cx + Math.cos(angle) * half,
+    ry = cy + Math.sin(angle) * half;
+  // beam body as thick stepped rects
+  const steps = 28;
+  for (let i = 0; i <= steps; i++) {
+    const k = i / steps;
+    const x = Math.round(lerp(lx, rx, k));
+    const y = Math.round(lerp(ly, ry, k));
+    rect(c, x - 8, y - 6, 16, 12, '#8a7a40');
+  }
+  // pans + masses
+  const pan = (px, py, w, color) => {
+    rect(c, px - 70, py + 8, 140, 14, '#5a6658');
+    rect(c, px - 4, py - 40, 8, 50, '#5a6658');
+    if (w > 0.05) {
+      const r = 12 + w * 18;
+      disc(c, px, py + 8 + r, r, color);
+    }
+  };
+  pan(lx, ly, leftW, '#7eb8a4');
+  pan(rx, ry, rightW, '#b84a3a');
+  // equality flash when balanced (both loaded and tip~0)
+  if (Math.abs(leftTarget - rightTarget) < 0.05 && t > 4) {
+    rect(c, cx - 40, cy - 80, 80, 12, '#e0c46a');
+  }
+  return {pattern: 'balance-scale', tip, leftW, rightW};
+}
+
+/**
+ * Dispatch by pattern id. orbit-pull / dual-world reuse gravity drawers.
+ * cfg mirrors world event params; localMs is time since world.at.
+ */
+export function drawKexuePattern(c, pattern, worldState, localMs) {
+  const p = pattern || 'orbit-pull';
+  if (p === 'scale-ladder') {
+    return drawScaleLadder(c, worldState.scale || worldState.full || {}, localMs, {
+      backdrop: worldState.backdrop || 'bench',
+    });
+  }
+  if (p === 'flow-process') {
+    return drawFlowProcess(c, worldState.flow || worldState.full || {}, localMs, {
+      backdrop: worldState.backdrop || 'bench',
+    });
+  }
+  if (p === 'balance-scale') {
+    return drawBalanceScale(c, worldState.balance || worldState.full || {}, localMs, {
+      backdrop: worldState.backdrop || 'bench',
+    });
+  }
+  // dual-world or orbit-pull with split layout
+  if (p === 'dual-world' || worldState.layout === 'split') {
+    return drawSplitWorld(c, worldState.left || {mode: 'fall'}, worldState.right || {mode: 'orbit'}, localMs, {
+      leftLabel: worldState.leftLabel || '',
+      rightLabel: worldState.rightLabel || '',
+    });
+  }
+  // orbit-pull full (default)
+  return drawFullWorld(c, worldState.full || {mode: 'orbit'}, localMs, {
+    label: worldState.fullLabel || '',
+    showPull: worldState.showPull !== false,
+  });
+}
+
+export const WORLD_GLYPHS =
+  '落下环绕向心引力无有轨道实验台固液气大小天平轻重阶梯流程相变数量级平衡';

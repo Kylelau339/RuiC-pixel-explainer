@@ -1,5 +1,5 @@
 import {drawPaper,drawInventory,drawRecallPanel,drawOpenBook,drawQuizBoard,drawMarkerFlag,drawFeedback,drawRewardBadge,drawCompareCards,drawStepBar,drawTimeline,drawSpeechBubble,drawPathNodes,drawCountdownRing,setLocale} from './components.mjs';
-import {drawFullWorld,drawSplitWorld} from './world-props.mjs';
+import {drawKexuePattern} from './world-props.mjs';
 import {buildPresetCanvas,resolveScenePair,SCENE_IDS} from './scene-presets.mjs';
 import {FONT_FAMILY,t} from './i18n.mjs';
 import {foldEvents,usesNativeEvents} from './events-adapter.mjs';
@@ -290,17 +290,7 @@ export class CinematicScene{
  drawWorldStage(c,tm,st){
   const w=st.world;if(!w)return false;
   const local=Math.max(0,tm-w.at);
-  if(w.layout==='split'){
-   drawSplitWorld(c,w.left,w.right,local,{
-    leftLabel:w.leftLabel||'',
-    rightLabel:w.rightLabel||'',
-   });
-  }else{
-   drawFullWorld(c,w.full,local,{
-    label:w.fullLabel||'',
-    showPull:w.showPull!==false,
-   });
-  }
+  drawKexuePattern(c,w.pattern,w,local);
   if(w.focusUi){
    // Single in-scene focus chip (not a HUD strip) — optional, ≤1.
    const k=ease((tm-w.at)/280);

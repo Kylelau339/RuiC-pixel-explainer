@@ -43,6 +43,7 @@
       "at": 200,
       "type": "world.show",
       "params": {
+        "pattern": "orbit-pull",
         "layout": "full",
         "full": { "mode": "attract", "mu": 3.6e6, "massR": 18, "seed": { "vx": 280, "vy": 20 } },
         "showPull": true
@@ -52,6 +53,7 @@
       "at": 5500,
       "type": "world.set",
       "params": {
+        "pattern": "dual-world",
         "layout": "split",
         "left": { "mode": "fall", "g": 1200, "massR": 16 },
         "right": { "mode": "orbit", "mu": 2.8e6, "orbitR": 190, "massR": 16 },
@@ -64,6 +66,7 @@
       "at": 14000,
       "type": "world.set",
       "params": {
+        "pattern": "orbit-pull",
         "layout": "full",
         "full": { "mode": "orbit", "mu": 2.8e6, "orbitR": 200, "massR": 18 },
         "fullLabel": "",

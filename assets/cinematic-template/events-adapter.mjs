@@ -264,10 +264,15 @@ export function foldEvents(ep, ms) {
       case 'world.show':
         state.world = {
           at: e.at,
-          layout: p.layout || 'full', // full | split
+          pattern: p.pattern || (p.layout === 'split' ? 'dual-world' : 'orbit-pull'),
+          layout: p.layout || (p.pattern === 'dual-world' ? 'split' : 'full'),
           left: p.left || {mode: 'fall'},
           right: p.right || {mode: 'orbit'},
           full: p.full || p.cfg || {mode: 'orbit'},
+          scale: p.scale || null,
+          flow: p.flow || null,
+          balance: p.balance || null,
+          backdrop: p.backdrop || null,
           leftLabel: labelOf(ep, p.leftLabelKey, p.leftLabel || L.worldLeft || ''),
           rightLabel: labelOf(ep, p.rightLabelKey, p.rightLabel || L.worldRight || ''),
           fullLabel: labelOf(ep, p.fullLabelKey, p.fullLabel || ''),
@@ -277,10 +282,15 @@ export function foldEvents(ep, ms) {
         break;
       case 'world.set':
         if (state.world) {
+          if (p.pattern) state.world.pattern = p.pattern;
           if (p.layout) state.world.layout = p.layout;
           if (p.left) state.world.left = {...state.world.left, ...p.left};
           if (p.right) state.world.right = {...state.world.right, ...p.right};
           if (p.full || p.cfg) state.world.full = {...state.world.full, ...(p.full || p.cfg)};
+          if (p.scale) state.world.scale = {...(state.world.scale || {}), ...p.scale};
+          if (p.flow) state.world.flow = {...(state.world.flow || {}), ...p.flow};
+          if (p.balance) state.world.balance = {...(state.world.balance || {}), ...p.balance};
+          if (p.backdrop) state.world.backdrop = p.backdrop;
           if (p.leftLabel != null || p.leftLabelKey)
             state.world.leftLabel = labelOf(ep, p.leftLabelKey, p.leftLabel ?? state.world.leftLabel);
           if (p.rightLabel != null || p.rightLabelKey)

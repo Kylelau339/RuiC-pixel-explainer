@@ -39,7 +39,17 @@
 
 | 主题类型 | 必开 | 禁止当英雄 |
 |---|---|---|
-| **物理 / 自然 科普** | World sandbox（full→split→full） | 半身口播、Path 标签、Compare 文案卡、Timeline/Ring 堆叠 |
+| **物理 / 自然 科普** | 必选 [kexue-patterns.md](kexue-patterns.md) 中一个 pattern | 半身口播、Path 标签、Compare 文案卡、Timeline/Ring 堆叠 |
 | 记忆 / 提取 | 仍用 Inventory 链 | — |
 
-样片：`?ep=gravity` → `episode.zh-gravity.json`；draft：`assets/cinematic-template/demo-zh-gravity-v2.draft.mp4`。
+## 模式速览
+
+| pattern | 样例 ep |
+|---|---|
+| orbit-pull | `?ep=gravity` |
+| dual-world | `?ep=kexue-dual` |
+| scale-ladder | `?ep=kexue-scale` |
+| flow-process | `?ep=kexue-flow` |
+| balance-scale | `?ep=kexue-balance` |
+
+完整目录、反模式、决策树 → [kexue-patterns.md](kexue-patterns.md)。

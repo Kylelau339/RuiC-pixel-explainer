@@ -62,21 +62,24 @@ A开工读 [references/imagegen-route.md](references/imagegen-route.md)，用 `s
 
 ### 科普主题强制「实验拍」（不得做成 talking-head）
 
-物理 / 自然 / 原理类主题（地心引力、惯性、光、电路等）**必须**过静音验收：关掉声音仍能看懂因果。细则见 [references/kexue-visual.md](references/kexue-visual.md)。
+物理 / 自然 / 原理 / 科学 科普类主题 **必须**：
 
-- **道具要动**：吸引源、质点、轨迹（`world-props.mjs`），时间纯函数可 seek。  
-- **双世界用动画分屏**，不用 CompareCards 文案卡当英雄镜头。  
-- **半身讲话 ≤ 30% 时长**，或全程画外音 + 全屏实验（`actor.hide`）。  
-- **HUD 默认关**（`profile: "kexue"` / `hud: false`）；每片最多一个 `focusUi`。  
-- **禁止**用 Path 节点字（落/心/绕）冒充物理演示。
+1. 从 [references/kexue-patterns.md](references/kexue-patterns.md) **选一个** `kexue.pattern`（`orbit-pull` · `dual-world` · `scale-ladder` · `flow-process` · `balance-scale`）  
+2. 过静音验收与检查清单（同文件）；合同细节见 [references/kexue-visual.md](references/kexue-visual.md)
 
-样片：`?ep=gravity`（`episode.zh-gravity.json`）。
+**Agent 检查清单（交片前）**
+
+- [ ] 已写 `kexue.pattern` + `profile:"kexue"` + `hud:false`  
+- [ ] 半身 ≤ 30% 或 `actor.hide`；道具在动；静音可懂  
+- [ ] 无 Path 标签冒充、无 Compare 文案卡当双世界、无 HUD 汤  
+
+样片画廊：`?ep=gravity|kexue-dual|kexue-scale|kexue-flow|kexue-balance`。
 
 ### 主题 → 推荐组件链（菜单）
 
 | 主题类型 | 必开组件 | 可选 | 场景预设建议 |
 |---|---|---|---|
-| **物理 / 自然 科普** | **World** full→split→full（质点+吸引+轨迹） | 单条 focusUi；字幕口播 | 实验沙盘（world 自绘星空台） |
+| **物理 / 自然 科普** | **必选** kexue pattern（见上） | 单条 focusUi；字幕口播 | 实验沙盘（`world-props`） |
 | 记忆 / 提取 | Inventory → Recall → Quiz → Feedback → Reward | MarkerFlag, OpenBook | `workshop` + `archive` |
 | 对比抉择（Before/After） | **CompareCards** → StepBar 或 Feedback | Paper, RewardBadge | `study` / `terminal` |
 | 步骤 / 结构（非记忆） | **Timeline** + StepBar + **Path** | Speech, Ring, Compare | `terminal` / `study` |

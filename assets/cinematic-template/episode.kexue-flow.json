@@ -1,0 +1,63 @@
+{
+  "id": "kexue-flow-phase",
+  "title": "相变·流程台",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "flow-process",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：冰块→液滴→升腾粒子，沿台面 A→B→C 变形前进；不是步骤条文案。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "flow-process",
+        "backdrop": "bench",
+        "flow": {
+          "stations": [
+            { "label": "固", "color": "#8ab4c8" },
+            { "label": "液", "color": "#4a8ac8" },
+            { "label": "气", "color": "#c8c4a8" }
+          ]
+        }
+      }
+    },
+    {
+      "at": 10500,
+      "type": "world.set",
+      "params": {
+        "focusUi": "形态在台上变，不在字条上变",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [{ "at": 400, "end": 13000 }],
+  "lines": [
+    { "at": 400, "end": 3200, "text": "同一物质，三种形态。" },
+    { "at": 3200, "end": 6500, "text": "先是[[固体]]。" },
+    { "at": 6500, "end": 9800, "text": "化开，变成[[液体]]。" },
+    { "at": 9800, "end": 13000, "text": "再升腾，成为[[气体]]。" }
+  ]
+}

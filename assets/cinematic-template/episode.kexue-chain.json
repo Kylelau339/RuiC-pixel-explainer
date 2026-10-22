@@ -1,0 +1,82 @@
+{
+  "id": "kexue-chain-reaction",
+  "title": "连锁·多米诺",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "chain-reaction",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：撞击子碰倒第一块，依次倾倒到尽头。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    {
+      "at": 0,
+      "type": "actor.hide"
+    },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "chain-reaction",
+        "chain": {
+          "count": 9
+        }
+      }
+    },
+    {
+      "at": 9000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "一触即发",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [
+    {
+      "at": 400,
+      "end": 13200
+    }
+  ],
+  "lines": [
+    {
+      "at": 400,
+      "end": 2800,
+      "text": "只要推第一块。"
+    },
+    {
+      "at": 2800,
+      "end": 6000,
+      "text": "后面自己[[接着倒]]。"
+    },
+    {
+      "at": 6000,
+      "end": 9500,
+      "text": "连锁，是传下去的。"
+    },
+    {
+      "at": 9600,
+      "end": 13000,
+      "text": "一触，即发。"
+    }
+  ]
+}

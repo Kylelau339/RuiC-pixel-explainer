@@ -6,7 +6,11 @@
 
 assets/cinematic-template/ 中：scene.mjs 独立绘制人物、后景、道具、前景、灯光、HUD、字幕；episode.json 存主题、角色参数、镜头切点、说话区间和字幕；index.html 暴露旧导出器兼容的 window.__player.set(ms) / total；assets/fonts/ 为本地 Fusion Pixel 与许可证；assets/voice.wav 是 20 秒示范配音，新主题必须替换；serve.py 启本机 HTTP 服务，支持音频 byte-range。
 
-先复制到项目再改。角色函数与可选参数见 [code-route.md](code-route.md)。JSON 改色不是自动设计新角色；模板字段不足以表现新轮廓时，扩展 frontActor、sideActor；新场景修改 buildBackgrounds 与动作代码。
+先复制到项目再改。角色函数与可选参数见 [code-route.md](code-route.md)。JSON 改色不是自动设计新角色；模板字段不足以表现新轮廓时，扩展 frontActor、sideActor。
+
+**场景点选**：`episode.sceneId` / `scenes.{big,small}` 从六套预设里选（`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`），见 `scene-presets.mjs`。不必从修理铺抄起；保持粗像素少纹理。新地点若预设不够，再扩 `scene-presets.mjs`。
+
+**语言**：`episode.locale` 为 `zh`|`en`|`ja`。组件默认文案走 `i18n.mjs`；`index.html` 按 locale 预载字形（`FONT_CSS_BY_LOCALE`）。英：`?ep=en`；日：`?ep=ja`（产品化清单见 [ja-productization.md](ja-productization.md)）。
 
 ## 20 秒示范结构
 
@@ -19,7 +23,7 @@ assets/cinematic-template/ 中：scene.mjs 独立绘制人物、后景、道具�
 
 ## 内容组件
 
-`components.mjs` 提供资料卡、物品栏、书页开合、检索面板、答题与答案对照、卡点旗、即时反馈条、奖励徽章。`scene.mjs` 的增强层在 episode 配置存在 visualBeats 时启用，原配置继续使用原先简单样板；不要通过增加背景纹理来解决讲解单调。具体 API 见 teaching-components.md。
+`components.mjs` 提供资料卡、物品栏、书页、检索、答题、卡点、反馈、奖励，以及对比双卡、步骤条、**时间线、对话泡、路径节点、进度环**。`episode.events[]` 为推荐事件层（`events-adapter.mjs`）；仅有 `visualBeats` 时走旧增强路径保持兼容。不要通过增加背景纹理解决单调。API 见 teaching-components.md。
 
 ## 时间轴与复用
 
@@ -40,3 +44,13 @@ voice_track.py 默认拒绝段落重叠，只有经明确需要叠声才传 --al
 ## 验证重点
 
 检查半身肩臂与腰线、小人大头短身、平面无鼻脸、帽发脸完整、面板不遮挡行走路径、字幕字形与安全区；同一时刻重截应字节一致，确定性失败就停；ffprobe 核对时长、帧数、帧率和音轨。音频补静音到画面长度，不用 -shortest 吃尾巴。
+
+### 遮挡三时刻（交付前勾选）
+
+| # | 时刻 | 看什么 | 判据 |
+|---|---|---|---|
+| 1 | 半身开场（约 1–3s） | 桌边 / 前景 | 可挡腿，**不挡脸**；姓名牌不压嘴眼 |
+| 2 | 小人行走中段（约 12–16s） | 路径上的书 / 旗 / 面板 | 帽发脸完整可见；组件在头上方或侧旁 |
+| 3 | 答题或奖励弹出（约 14–18s） | Quiz / Feedback / Reward | 不压字幕带（约 y≥960）；不盖半身脸 |
+
+交付物须含 `stills/`，上述三时刻各至少一张。清单项写进交付说明即可勾选。

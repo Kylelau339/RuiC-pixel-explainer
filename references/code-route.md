@@ -28,7 +28,11 @@ sideActor(c,x,foot,s,t,skin,walking) 保持boolean walking兼容，额外支持 
 }
 ```
 
-hairStyle支持bob / long / short，headwear支持none / cap / beret；左右眼与眼罩可分别设定。需要特别头盔、猫耳、裙装或其它参考特征时，扩展对应绘制函数，不把换色当完整重设计。不要全局改掉旧React工程已验收的角色；本次新期选择这套角色。
+`hairStyle`：`bob` / `long` / `short` / **`ponytail`** / **`twin`**  
+`headwear`：`none` / `cap` / `beret` / **`hood`** / **`helmet`** / **`bow`**  
+左右眼与眼罩可分别设定。验收组合示例：`ponytail+none`、`short+hood`、`bob+helmet`。披风 / 眼镜 / 猫耳延后。不把换色当完整重设计。
+
+绘制入口：`CinematicScene.drawActorBig` / `drawActorSmall`（`actorMode: "code"|"sprite"`）。A 路线见 `imagegen-template/scene-sprite-patch.md`。
 
 ## 场景仍然要对应角色
 

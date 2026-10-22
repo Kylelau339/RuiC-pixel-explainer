@@ -81,8 +81,14 @@
 | `drawMarkerFlag` | x / y / label / alpha | 错误、路上的卡点、待练项目 |
 | `drawFeedback` | x / y / w / progress / state / alpha | 即时对错、经验变化（correct / pending） |
 | `drawRewardBadge` | x / y / label / alpha | 获得能力、通过验证、解锁道具 |
+| `drawCompareCards` | x / y / w / title / left* / right* / highlight / alpha | 前后 / A-B 对比双卡 |
+| `drawStepBar` | x / y / w / steps / current / title / alpha | 多步流程条 |
+| `drawTimeline` | steps / activeIndex / progress | 阶段时间线 |
+| `drawSpeechBubble` | text / tail / tone | 短对话泡（≤12 汉 / ≤22 Latin） |
+| `drawPathNodes` | nodes / edges | 路径节点 |
+| `drawCountdownRing` | progress / mode / label | 分段进度环 |
 
-它们都是**世界里的道具或 HUD**，不是整页截图；标签从当期 episode 数据传入 —— 库本身不绑定任何一期的口播、音色或语速。
+标签随 `locale`；主题菜单见 [SKILL.md](SKILL.md) / [teaching-components.md](references/teaching-components.md)。新片优先 `events[]`（`visualBeats` 仍兼容）。
 
 ### 3. 语义事件时间轴（`visualBeats`）
 
@@ -90,18 +96,25 @@
 
 ```json
 {
+  "locale": "zh",
+  "sceneId": "workshop",
+  "scenes": { "big": "workshop", "small": "archive" },
   "visualBeats": {
     "collectAt": 500, "queryAt": 2000, "contrastAt": 4500, "retrieveAt": 7000,
+    "compareAt": 8200,
     "testAt": 11000, "closeAt": 11000, "markAt": 13500, "checkAt": 14500,
     "correctAt": 16500, "rewardAt": 17300, "unlockAt": 18200, "walkAt": 15400
   },
   "componentLabels": {
     "inventoryTitle": "收藏栏", "queryTitle": "调取记忆", "contrast": "存下 ≠ 学会",
     "taskTitle": "当前任务", "prompt": "本次问题", "wrongAnswer": "尝试回答",
-    "rightAnswer": "参考答案", "reward": "能力已解锁"
+    "rightAnswer": "参考答案", "reward": "能力已解锁",
+    "compareLeft": "之前", "compareRight": "之后"
   }
 }
 ```
+
+场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。**科普实验模式**（11 选一）：`gravity` · `kexue-dual` · `kexue-scale` · `kexue-flow` · `kexue-balance` · `kexue-collision` · `kexue-cycle` · `kexue-threshold` · `kexue-field` · `kexue-ratio` · `kexue-chain` — 目录 [kexue-patterns.md](references/kexue-patterns.md)。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
 
 **一拍一个因果变化**：资料飞入时看库存，检索失败时看结果，核对时看回答与参考答案，成功后才给奖励。
 面板与角色行动分开编排（角色初始站位 / 行走经过区域 / 终点都要考虑）；绘制顺序是背景 → 人物与手持道具 → 奖励与 HUD，别让开门的矩形把奖章抹掉。
@@ -137,12 +150,16 @@ flowchart LR
 
 **自带样板里有什么**（`assets/cinematic-template/`）：
 
-- `scene.mjs` —— 画人物（`frontActor` / `sideActor`）、后景、道具、前景、灯光、HUD、字幕；内置零件：吊灯、座钟、书架、椅子、地板、聚光锥、暗角、金边面板、问号、钥匙
-- `episode.json` —— 主题 / 作者 / 时长 / 帧率 / 切点 / 角色配色（`actor`：发色、发亮部、外套、外套亮部、围巾、肤色三档、配件）、章节、说话区间（`voice`）、字幕（`lines`）、事件层（`visualBeats` 可选）
-- `components.mjs` —— 上面那八个组件
-- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）
+- `scene.mjs` —— 画人物（`frontActor` / `sideActor`）、后景、道具、前景、灯光、HUD、字幕
+- `scene-presets.mjs` —— 六套可点选粗像素背景
+- `i18n.mjs` —— zh / en / ja 组件默认文案与字体预载辅助
+- `events-adapter.mjs` —— `visualBeats`→`events[]` 适配与 `foldEvents`
+- `episode.json` / `episode.en.json` / `episode.ja.json` / `episode.zh-path.json` / `episode.zh-gravity.json` —— 主题样例（zh-path 非记忆；gravity 为科普实验台 v2）
+- `world-props.mjs` —— 吸引源 / 质点 / 轨迹 / 双世界分屏（科普物理层）
+- `components.mjs` —— 十四个讲解组件（含 timeline / speech / path / ring）
+- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）；`?ep=en|ja|gravity` 切样例
 - `serve.py` —— 本机 HTTP 服务，支持音频 byte-range
-- `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**（用自己的后端生成，或直接换成品音轨，见「配音与时间轴」）
+- `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**
 
 ## 🚀 快速开始
 
@@ -153,10 +170,10 @@ flowchart LR
 cp -R assets/cinematic-template <本次项目目录>
 cd <本次项目目录>
 
-# 1) 改 episode.json：主题、角色配色与可选字段（hairStyle / headwear / eye / eyePatch）、说话区间、字幕（以及可选的 visualBeats）
-#    ⚠️ 改配色 ≠ 设计新角色；模板字段不足以表现新轮廓时，扩展 scene.mjs 的 frontActor / sideActor 与新场景代码
+# 1) 改 episode.json：locale / sceneId / 主题、角色、字幕、可选 visualBeats（含 compareAt / stepsAt）
+#    ⚠️ 改配色 ≠ 设计新角色；新轮廓扩展 frontActor / sideActor；新地点扩 scene-presets.mjs
 
-# 2) 起本机预览
+# 2) 起本机预览（英：?ep=en）
 python3 serve.py --port 8778 --open
 
 # 3) 逐句配音 + 量真实时长（两步走；配音后端要你自己给，先 --check 验证）
@@ -164,13 +181,29 @@ python3 <技能目录>/scripts/voice_track.py --check
 python3 <技能目录>/scripts/voice_track.py --lines lines.json     --work work --tts-only
 python3 <技能目录>/scripts/voice_track.py --lines lines-abs.json --work work --out voice.wav
 
-# 4) 静帧预检（先看比例、遮挡、字幕安全区）
-node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills --times 1.6,6.2,10.5,14.8,18.4 --dsf 1.5
-
-# 5) 逐帧出片
+# 4) 静帧预检（遮挡三时刻必含）→ draft → final
+node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
+     --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
 node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
-     --audio voice.wav --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+     --audio voice.wav --preset draft --workers 2 --threads 2
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 \
+     --audio voice.wav --preset final --workers 2 --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+# 回滚单进程：--workers 1
 ```
+
+## ⏱ 导出速度（Phase 3）
+
+实现：多 **Chromium 进程**分帧段 + 有序 stitch（非同 browser 多 page）；PNG **禁止** CDP `optimizeForSpeed`。回滚：`--workers 1`（单进程 image2pipe，与 Phase 1 语义等价）。
+
+**本机实测**（2026-10-21 · Cloud Agent VM · 4 vCPU · 负载 `zh-path` **8s@30fps=240 帧** · `1920×1080` · dsf 1.5 · verify-repeat=1）：
+
+| workers | wall | vs workers=1 | capture 墙钟 |
+|---|---|---|---|
+| 1 | **77.5s** | 1.0× | ≈76.9s |
+| 2 | **43.6s** | **1.8×** | ≈40.0s |
+| 4 | **27.2s** | **2.9×** | ≈23.6s |
+
+结论：`--workers 4` 达到 ≥2× 墙钟；`--workers 2` 约 1.8×。完整 20s@30fps（600 帧）可按比例外推，以本机日志 `计时 … wall=…s workers=N` 为准。跨环境像素不保证；并行后确定性双截仍须通过。
 
 **A 路线**先注册生成的角色资产，再把 `sprite-actor.mjs` 接到模板上（完整接法见 `assets/imagegen-template/INTEGRATION.md`）：
 

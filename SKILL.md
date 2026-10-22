@@ -58,47 +58,102 @@ A开工读 [references/imagegen-route.md](references/imagegen-route.md)，用 `s
 
 ## 让人物有事可演
 
-粗像素不等于只有小人走路和嘴巴开合。根据每个知识点选择可操作的讲解组件，把一句抽象结论转成看得见的事件链：资料进入收藏栏 → 需要时检索 → 做题暴露卡点 → 对照反馈 → 获得能力。按当前主题重选比喻，不把这条链硬套到所有视频。
+粗像素不等于只有小人走路和嘴巴开合。根据每个知识点选择可操作的讲解组件，把一句抽象结论转成看得见的事件链。按当前主题选配方，不把「收藏→检索→答题」硬套到所有视频。
 
-- 优先组合道具动作与信息反馈：资料卡、物品栏、开合书页、检索槽、题目板、卡点旗、答案对照、经验条、成就或解锁提示。组件有独立状态与时间参数，不能只贴静态文字框。
-- 同一段落内按语义推进不同组件；一个组件成为焦点时，上一组件停止、变暗或退场。别把所有组件一起弹出，也别用密集装饰替代内容。
-- 人物参与因果过程：拿取、关闭、标记、回答、核对和获得；让道具状态变化发生在相应口播，而不只是人物在空场景里来回走。
-- 数量、对错和进度在场景内可被理解；示意游戏读数不要伪装成真实统计。框体、卡片、图标继续使用简洁硬边粗像素，保持安静背景和清楚的脸。
-- 对照或答题面板留在头部上方或旁边，反馈条与角色行走路径错开；桌边、门与道具的前后关系正确，组件不盖脸、不压字幕。
+### 科普主题强制「实验拍」（不得做成 talking-head）
 
-组件 API 和如何编排事件见 [references/teaching-components.md](references/teaching-components.md)。模板中 `components.mjs` 可独立复用；`episode.visualBeats` 启用增强事件层，具体标签与时点由本期 JSON 传入。
+物理 / 自然 / 原理 / 科学 科普类主题 **必须**：
 
+1. 从 [references/kexue-patterns.md](references/kexue-patterns.md) **选一个** `kexue.pattern`（共 11：`orbit-pull` · `dual-world` · `scale-ladder` · `flow-process` · `balance-scale` · `collision-transfer` · `cycle-loop` · `threshold-tip` · `field-lines` · `ratio-mix` · `chain-reaction`）  
+2. 过静音验收与检查清单（同文件）；合同细节见 [references/kexue-visual.md](references/kexue-visual.md)
+
+**Agent 检查清单（交片前）**
+
+- [ ] 已写 `kexue.pattern` + `profile:"kexue"` + `hud:false`  
+- [ ] 半身 ≤ 30% 或 `actor.hide`；道具在动；静音可懂  
+- [ ] 拍间有停顿；轨迹/力线可读；可用 `camera.keyframes` 轻推镜头  
+- [ ] 无 Path 标签冒充、无 Compare 文案卡当双世界、无 HUD 汤  
+
+样片：`?ep=gravity|kexue-dual|kexue-scale|kexue-flow|kexue-balance|kexue-collision|kexue-cycle|kexue-threshold|kexue-field|kexue-ratio|kexue-chain`。
+
+### 主题 → 推荐组件链（菜单）
+
+| 主题类型 | 必开组件 | 可选 | 场景预设建议 |
+|---|---|---|---|
+| **物理 / 自然 科普** | **必选** kexue pattern（见上） | 单条 focusUi；字幕口播 | 实验沙盘（`world-props`） |
+| 记忆 / 提取 | Inventory → Recall → Quiz → Feedback → Reward | MarkerFlag, OpenBook | `workshop` + `archive` |
+| 对比抉择（Before/After） | **CompareCards** → StepBar 或 Feedback | Paper, RewardBadge | `study` / `terminal` |
+| 步骤 / 结构（非记忆） | **Timeline** + StepBar + **Path** | Speech, Ring, Compare | `terminal` / `study` |
+| 系统 / 调试 | Recall(failed) → Quiz → Feedback | CompareCards, Ring | `terminal` |
+| 旅程 / 选择 | Path + walk → Reward | Speech, MarkerFlag | `nightstreet` + `archive` |
+
+完整参数与 **`events[]` / `visualBeats` 迁移表**见 [references/teaching-components.md](references/teaching-components.md)。新样片优先 `events`；旧片可继续 `visualBeats`。`locale`（`zh`|`en`|`ja` 脚手架）；`sceneId` 点选六套场景。交付前建议跑 `scripts/qa_stills.mjs`（不取代遮挡三时刻人工检）。
+
+- 优先组合道具动作与信息反馈；组件有独立状态与时间参数，不能只贴静态文字框。
+- 同一段落内按语义推进；一个组件成为焦点时，上一组件停止、变暗或退场。
+- 对照或答题面板留在头部上方或旁边；组件不盖脸、不压字幕。
+- **科普片**：先过静音实验拍，再谈组件装饰；组件库堆叠不能替代世界物理。
 
 ## 从文案到成片
 
-1. 确认主题、时长和参考风格。明确数字或专有事实才查出处；纯教学比喻不为凑事实表虚构引用。用户让你选文案就直接写。
-2. 把文案分成**语义拍**，给每拍一个动作：物品出现、表情变化、走路、拿取、验证或开门。同场景可以有多句口播，不必每句话切镜头。
-3. 人物与场景分别设计。新人物应改变剪影或特征组合，而不只是给老精灵换颜色。先锁定同一人的身份特征，再分别完成半身和小人物，不让两种景别变成两个人。
-4. 逐句合成口播，量真实时长，再填字幕、说话区间与动作时间。口播走**使用者自己的**配音后端（HTTP API 或本地 TTS 命令；本技能不带内置音色，接法见 [references/pipeline.md](references/pipeline.md) 第 5 节）——先 `voice_track.py --check` 验证接好、试听音色，再测语速；不要靠极端变速迁就拍脑袋的时间轴。使用者已有成品音轨就不必合成，`render_episode.mjs --audio` 直接指过去，但时间码仍按真实时长排。
-5. 用时间的纯函数绘制，先取少量关键静帧检查比例与遮挡，再逐帧出片。同帧重截不一致必须修正；CSS 墙钟动画和 `Math.random()` 不进入录制画面。
+1. 确认主题、时长、**locale**、参考风格。明确数字或专有事实才查出处；纯教学比喻不为凑事实表虚构引用。用户让你选文案就直接写。
+2. 把文案分成**语义拍**，给每拍一个动作；从表里选组件链与 `sceneId`，不必每句话切镜头。
+3. 人物与场景分别设计。新人物应改变剪影或特征组合；先锁身份特征，再完成半身与小人。
+4. 逐句合成口播，量真实时长，再填字幕、说话区间与动作时间。口播走**使用者自己的**配音后端（见 [references/pipeline.md](references/pipeline.md) 第 5 节）——先 `voice_track.py --check`；不要靠极端变速迁就拍脑袋的时间轴。
+5. **质量门禁（强制）**：用时间的纯函数绘制后，**必须**跑静帧，再 draft / final 出片。同帧重截不一致必须修正；CSS 墙钟动画和 `Math.random()` 不进入录制画面。
 
-用户已经授权具体样片或给了明确结构时，直接把样片做完给他审。复杂长片、内容有实质歧义时才澄清，不把分镜确认或静帧确认当作所有任务的固定停工门。
+### 静帧时间点模板（交付前必跑）
+
+对 20s 双镜片，至少抽：
+
+```bash
+node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
+  --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
+```
+
+**遮挡三时刻**（见 [references/cinematic-profile.md](references/cinematic-profile.md)）必须各有一张静帧可勾选：① 半身开场桌边挡腿但不挡脸；② 小人行走途中组件不压帽发脸；③ 答题/奖励弹出时不压字幕带。交付物须含 `stills/` 目录。
+
+用户已经授权具体样片或给了明确结构时，直接把样片做完给他审。复杂长片、内容有实质歧义时才澄清。
 
 ## 命令与入口
 
 ```bash
-# B：先复制纯代码模板。episode.json 改文案与角色参数，scene.mjs 改场景与动作。
+# B：先复制纯代码模板。episode.json 改文案、locale、sceneId 与角色参数。
 cp -R <技能目录>/assets/cinematic-template <本次项目目录>
 python3 <本次项目目录>/serve.py --port 8778 --open
+# 英样例：浏览器打开 ?ep=en ；日文脚手架：?ep=ja
 
 # 口播两步走；work 换到本期独立工作目录。
-# 配音后端由使用者自己提供（HTTP API / 本地命令 / tts.config.json，见 references/pipeline.md 第 5 节），
-# 没配置时脚本会报错并给出接法。先 --check 合成一句试听。
 python3 <技能目录>/scripts/voice_track.py --check
 python3 <技能目录>/scripts/voice_track.py --lines lines.json --work <work> --tts-only
 python3 <技能目录>/scripts/voice_track.py --lines lines-abs.json --work <work> --out voice.wav
 
-# 新样板与老游戏均提供 window.__player.set(ms) / total。
-node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills --times 1.6,6.2,10.5,14.8,18.4 --dsf 1.5
-node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ --out sample.mp4 --audio voice.wav --fps 30 --dsf 1.5 --size 1920x1080 --threads 2
+# 静帧（强制）→ draft 预览 → 局部重渲 → final 交付
+node <技能目录>/scripts/stills.mjs --url http://127.0.0.1:8778/ --out stills \
+  --times 1.6,4.5,6.2,8.5,10.5,12.0,14.8,16.8,18.4 --dsf 1.5
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
+  --out sample.mp4 --audio voice.wav --preset draft --workers 2 --threads 2
+# 只重渲后半段（秒）：
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
+  --out sample.mp4 --preset draft --from 10 --to 20
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
+  --out sample.mp4 --audio voice.wav --preset final --workers 2 --threads 2
+# 回滚单进程：
+node <技能目录>/scripts/render_episode.mjs --url http://127.0.0.1:8778/ \
+  --out sample.mp4 --preset final --workers 1
+# 轻量 QA（声明 bbox；挡脸夹具应 fail）
+node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep zh-path --out qa-stills
+node <技能目录>/scripts/qa_stills.mjs --url http://127.0.0.1:8778/ --ep occlusion-fail --out qa-fail --times 1.0 ; echo "expect fail"
 ```
 
-1280×720 视口 × dsf 1.5 直接得到 1920×1080 截图，避免先截 2560 再 Lanczos 柔化像素。需要其他尺寸时保留像素边界，并实际核对输出。编码默认两线程，不能把全机吃满。
+- `--preset draft`：约 15fps、更快 x264、低 verify，默认 `--workers 2`；输出 `.draft`；**不可当作交付成片**。
+- `--preset final`：30fps、完整确定性自检、交付档；默认 `--workers 2`；输出 `.final`。
+- `--workers 1..4`：多 **Chromium 进程**分帧段并行截取再按序 stitch；`--workers 1` 回滚到单进程 image2pipe（与 Phase 1 语义等价）。同 browser 多 page **更慢，不要用**。
+- PNG 路径**禁止** CDP `optimizeForSpeed`（破坏 alpha / 字节合同）。
+- `--from` / `--to`（秒）局部重渲。
+- 日语产品化清单：[references/ja-productization.md](references/ja-productization.md)（`?ep=ja`）。
+
+1280×720 视口 × dsf 1.5 直接得到 1920×1080 截图。编码默认两线程，不能把全机吃满。
 
 ## 交付与声明
 

@@ -1,0 +1,83 @@
+{
+  "id": "kexue-ratio-mix",
+  "title": "比例·混合",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "ratio-mix",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：两色液体倒入碗中，唇上色块显示比例，不是旁路进度条。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    {
+      "at": 0,
+      "type": "actor.hide"
+    },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "ratio-mix",
+        "ratio": {
+          "left": 0.35,
+          "right": 0.65
+        }
+      }
+    },
+    {
+      "at": 9000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "比例就是成分",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [
+    {
+      "at": 400,
+      "end": 13200
+    }
+  ],
+  "lines": [
+    {
+      "at": 400,
+      "end": 3000,
+      "text": "两种材料倒进去。"
+    },
+    {
+      "at": 3000,
+      "end": 6500,
+      "text": "谁多谁少，碗沿[[写着]]。"
+    },
+    {
+      "at": 6500,
+      "end": 9500,
+      "text": "比例，就是成分本身。"
+    },
+    {
+      "at": 9600,
+      "end": 13000,
+      "text": "看得见的配方。"
+    }
+  ]
+}

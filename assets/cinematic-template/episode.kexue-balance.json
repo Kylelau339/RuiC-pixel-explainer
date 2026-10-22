@@ -1,0 +1,58 @@
+{
+  "id": "kexue-balance-scale",
+  "title": "天平·平衡",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "balance-scale",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：右侧重物落下后天平倾斜；力写在横梁角度上。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "balance-scale",
+        "backdrop": "bench",
+        "balance": { "leftMass": 1, "rightMass": 2.4 }
+      }
+    },
+    {
+      "at": 7000,
+      "type": "world.set",
+      "params": {
+        "balance": { "leftMass": 2.4, "rightMass": 2.4 },
+        "focusUi": "一样重，梁才平",
+        "restart": true
+      }
+    }
+  ],
+  "voice": [{ "at": 400, "end": 13000 }],
+  "lines": [
+    { "at": 400, "end": 3500, "text": "哪边更重？" },
+    { "at": 3500, "end": 7000, "text": "梁会告诉你——它[[歪了]]。" },
+    { "at": 7200, "end": 10500, "text": "两边一样重。" },
+    { "at": 10500, "end": 13500, "text": "梁[[平]]了，力才平衡。" }
+  ]
+}

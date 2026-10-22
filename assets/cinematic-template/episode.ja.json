@@ -1,0 +1,63 @@
+{
+  "id": "ja-notes-gap-20s",
+  "title": "メモのすき間",
+  "author": "RuiC",
+  "locale": "ja",
+  "sceneId": "study",
+  "scenes": { "big": "study", "small": "terminal" },
+  "durationMs": 20000,
+  "fps": 30,
+  "cutMs": 10000,
+  "actorMode": "code",
+  "actor": {
+    "name": "ラン",
+    "hair": "#2a3030",
+    "hairLight": "#414850",
+    "coat": "#3a4a52",
+    "coatLight": "#5a6a70",
+    "scarf": "#c4a35a",
+    "skin": "#f2deca",
+    "skinLight": "#faecd6",
+    "skinShade": "#d4bea5",
+    "clip": "#c79c4a",
+    "hairStyle": "short",
+    "headwear": "beret",
+    "headwearColor": "#3a4048",
+    "headwearLight": "#5a6068",
+    "eye": "#3d5c6e"
+  },
+  "chapters": ["取る", "分ける", "話す"],
+  "componentLabels": {
+    "compareLeft": "保存",
+    "compareRight": "理解",
+    "compareLeftBody": "メモ増",
+    "compareRightBody": "説明可",
+    "compareTitle": "対比",
+    "steps": ["取る", "分ける", "名づける", "話す"],
+    "stepBarTitle": "手順",
+    "reward": "本当のメモ"
+  },
+  "events": [
+    { "at": 600, "type": "stepbar.show", "params": { "activeIndex": 0, "steps": ["取る", "分ける", "名づける", "話す"] } },
+    { "at": 2800, "type": "compare.show", "params": { "leftKey": "compareLeft", "rightKey": "compareRight", "leftBodyKey": "compareLeftBody", "rightBodyKey": "compareRightBody" } },
+    { "at": 5500, "type": "stepbar.advance", "params": { "by": 1 } },
+    { "at": 10500, "type": "stepbar.show", "params": { "activeIndex": 2, "steps": ["取る", "分ける", "名づける", "話す"] } },
+    { "at": 10800, "type": "actor.walk", "params": { "from": 500, "to": 1100, "durationMs": 4000 } },
+    { "at": 14000, "type": "stepbar.advance", "params": { "by": 1 } },
+    { "at": 17000, "type": "reward.show", "params": { "labelKey": "reward" } },
+    { "at": 17000, "type": "actor.celebrate", "params": {} }
+  ],
+  "voice": [
+    { "at": 600, "end": 9200 },
+    { "at": 10500, "end": 19500 }
+  ],
+  "lines": [
+    { "at": 600, "end": 2800, "text": "メモはすぐ[[増える]]。" },
+    { "at": 2800, "end": 5500, "text": "理解は[[遅れる]]。" },
+    { "at": 5500, "end": 9000, "text": "だから[[分ける]]。" },
+    { "at": 10500, "end": 13500, "text": "すき間に[[名を]]つける。" },
+    { "at": 13500, "end": 16500, "text": "声に出して[[教える]]。" },
+    { "at": 16500, "end": 19500, "text": "それが[[本当の]]メモ。" }
+  ],
+  "_jaChecklist": "字幕≤13全角/行；プレロードに labels+lines；TTS は利用者バックエンド（未同梱）"
+}

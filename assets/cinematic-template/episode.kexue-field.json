@@ -1,0 +1,83 @@
+{
+  "id": "kexue-field-lines",
+  "title": "场线·偏转",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "field-lines",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：箭头场铺满舞台，测试粒子沿弯轨加速下落。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    {
+      "at": 0,
+      "type": "actor.hide"
+    },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "field-lines",
+        "backdrop": "space",
+        "field": {
+          "strength": 1.1
+        }
+      }
+    },
+    {
+      "at": 9000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "场在改路径",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [
+    {
+      "at": 400,
+      "end": 13200
+    }
+  ],
+  "lines": [
+    {
+      "at": 400,
+      "end": 3000,
+      "text": "到处都有方向。"
+    },
+    {
+      "at": 3000,
+      "end": 6500,
+      "text": "粒子顺着场[[弯]]过去。"
+    },
+    {
+      "at": 6500,
+      "end": 9500,
+      "text": "看不见的力，写成箭头。"
+    },
+    {
+      "at": 9600,
+      "end": 13000,
+      "text": "路径被场改写了。"
+    }
+  ]
+}

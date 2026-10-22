@@ -1,0 +1,116 @@
+{
+  "id": "zh-gravity-v2",
+  "title": "地心引力·实验台",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "sceneId": "moonatelier",
+  "scenes": { "big": "moonatelier", "small": "moonatelier" },
+  "durationMs": 22000,
+  "fps": 30,
+  "cutMs": 22000,
+  "actorMode": "code",
+  "kexue": {
+    "pattern": "orbit-pull",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：左直坠、右绕心；拉力带指向中心；轨迹连续弯向吸引源。"
+  },
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "hairLight": "#41433a",
+    "coat": "#334637",
+    "coatLight": "#50634c",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "skinLight": "#faecd6",
+    "skinShade": "#d4bea5",
+    "clip": "#c79c4a",
+    "hairStyle": "ponytail",
+    "headwear": "none",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {
+    "worldLeft": "无向心拉 · 直坠",
+    "worldRight": "有引力 · 绕心",
+    "focusOrbit": "环绕＝不停往中心落"
+  },
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "orbit-pull",
+        "layout": "full",
+        "full": { "mode": "attract", "mu": 3.6e6, "massR": 18, "seed": { "vx": 280, "vy": 20 } },
+        "showPull": true,
+        "camera": {
+          "keyframes": [
+            { "atMs": 0, "zoom": 1, "x": 960, "y": 520 },
+            { "atMs": 2400, "zoom": 1.14, "x": 1040, "y": 460 },
+            { "atMs": 5200, "zoom": 1.06, "x": 960, "y": 500 }
+          ]
+        }
+      }
+    },
+    {
+      "at": 6500,
+      "type": "world.set",
+      "params": {
+        "pattern": "dual-world",
+        "layout": "split",
+        "left": { "mode": "fall", "g": 1200, "massR": 16 },
+        "right": { "mode": "orbit", "mu": 2.8e6, "orbitR": 190, "massR": 16 },
+        "leftLabelKey": "worldLeft",
+        "rightLabelKey": "worldRight",
+        "camera": {
+          "keyframes": [
+            { "atMs": 0, "zoom": 1, "x": 960, "y": 540 },
+            { "atMs": 2000, "zoom": 1.05, "x": 960, "y": 520 },
+            { "atMs": 5500, "zoom": 1.08, "x": 1280, "y": 500 }
+          ]
+        },
+        "restart": true
+      }
+    },
+    {
+      "at": 15500,
+      "type": "world.set",
+      "params": {
+        "pattern": "orbit-pull",
+        "layout": "full",
+        "full": { "mode": "orbit", "mu": 2.8e6, "orbitR": 200, "massR": 18 },
+        "fullLabel": "",
+        "focusUi": "环绕＝不停往中心落",
+        "showPull": true,
+        "camera": {
+          "keyframes": [
+            { "atMs": 0, "zoom": 1.08, "x": 960, "y": 500 },
+            { "atMs": 2500, "zoom": 1.16, "x": 1100, "y": 480 },
+            { "atMs": 5000, "zoom": 1.1, "x": 960, "y": 500 }
+          ]
+        },
+        "restart": true
+      }
+    }
+  ],
+  "voice": [
+    { "at": 400, "end": 5800 },
+    { "at": 6800, "end": 14800 },
+    { "at": 15800, "end": 21500 }
+  ],
+  "lines": [
+    { "at": 400, "end": 2800, "text": "苹果落地，不是偶然。" },
+    { "at": 2800, "end": 5200, "text": "力在把你[[往中心拉]]。" },
+    { "at": 5200, "end": 6200, "text": "看清楚这一下。" },
+    { "at": 6800, "end": 10000, "text": "左边：只往下坠。" },
+    { "at": 10000, "end": 14000, "text": "右边：同一股力，变成[[绕飞]]。" },
+    { "at": 14000, "end": 15200, "text": "停一秒，对比。" },
+    { "at": 15800, "end": 19000, "text": "轨道，是不停地[[落下]]。" },
+    { "at": 19000, "end": 21500, "text": "看得见的，才是引力。" }
+  ]
+}

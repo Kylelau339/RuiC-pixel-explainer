@@ -1,10 +1,16 @@
 {
   "id": "memory-key",
+  "locale": "zh",
   "title": "记忆的钥匙",
   "author": "RuiC",
   "durationMs": 20000,
   "fps": 30,
   "cutMs": 10000,
+  "sceneId": "workshop",
+  "scenes": {
+    "big": "workshop",
+    "small": "archive"
+  },
   "actor": {
     "name": "阿岚",
     "hair": "#282c29",

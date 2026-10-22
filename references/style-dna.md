@@ -25,9 +25,18 @@
 
 ## 场景密度
 
-两三个识别物就能定地点：修理铺＝桌椅＋灯＋钟；记忆关卡＝书＋路＋锁门。大部分处在暗部，纹理只帮助辨认材质。不要把空处填满图腾、齿轮、密集书架与花纹。
+两三个识别物就能定地点。模板六套可选预设（`scene-presets.mjs`）：
 
-空间对应角色的气质、服装与行动。最新例子中，橙发角色是暖色排练室与节奏平台，蓝发角色是月窗工坊与创作台阶；下一角色重新选地点与可见动作，不把这两种场景固定为模板，也不只换色。
+| id | 识别物（粗像素） |
+|---|---|
+| `workshop` | 桌椅＋灯＋钟 |
+| `archive` | 书＋路＋锁门 |
+| `study` | 书桌＋灯＋书架窗 |
+| `nightstreet` | 远楼＋灯笼＋湿地面 |
+| `terminal` | 多屏＋控制台 |
+| `moonatelier` | 月窗＋台阶＋墨台 |
+
+大部分处在暗部，纹理只帮助辨认材质。不要把空处填满图腾、齿轮、密集书架与花纹。空间对应角色气质；用 `sceneId` 点选，不把某两套场景固定为所有主题默认。
 
 墙砖不是满屏粗棋盘，采用低对比短横线、错缝和少量面板。主角身后的区域更安静，脸的对比高于背景。
 
@@ -39,14 +48,14 @@
 
 ## 字幕与字体
 
-本参考型配置采用本地 Fusion Pixel，字幕通常 60–72 px，场景标签常用 24–36 px；实际按画布与文字量定。必须用实际中文文本预载分包字体：
+本参考型配置采用本地 Fusion Pixel（含 Basic Latin / 假名 / 韩文音节分包），字幕通常 60–72 px，场景标签常用 24–36 px。`episode.locale` 决定预载字符串（`i18n.PRELOAD_EXTRA` + 本期文案）；必须把**实际字幕与组件标签**传入第二个参数：
 
 ```js
-await document.fonts.load('72px "Fusion Pixel 12px Proportional Simplified Chinese"', fullChineseText);
+await document.fonts.load('72px "Fusion Pixel 12px Proportional Simplified Chinese"', glyphsForLocale);
 await document.fonts.ready;
 ```
 
-不传第二个 text 参数只触发拉丁字形，首帧可能临时使用系统字。保持单行居中、底部暗区；纸白外描边、暗内描边、纸白填充与一个金色关键词。超宽按语义拆拍，不强行缩小。
+不传第二个 text 参数只触发拉丁字形，首帧可能临时使用系统字。保持单行居中、底部暗区；纸白外描边、暗内描边、纸白填充与一个金色关键词。超宽按语义拆拍，不强行缩小。行长与语速见 [pipeline.md](pipeline.md)「多语言行长 / 语速」。
 
 ## HUD 与包装
 

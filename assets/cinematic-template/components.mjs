@@ -324,13 +324,20 @@ export function drawPathNodes(c, {nodes = [], edges = [], nodeR = 18, alpha = 1,
     const st = n.state || 'open';
     const col = st === 'active' ? P.teal : st === 'done' ? '#6a8a70' : st === 'locked' ? P.muted : P.gold;
     const s = nodeR * 2;
+    const nodeA = n._a != null ? clamp01(n._a) : 1;
+    c.save();
+    c.globalAlpha = alpha * nodeA;
     r(c, n.x - nodeR, n.y - nodeR, s, s, '#0a1410');
     frame(c, n.x - nodeR, n.y - nodeR, s, s, col, 3);
     if (st === 'locked') text(c, '×', n.x, n.y - 12, 24, P.muted, 'center');
     else if (st === 'done') text(c, '✓', n.x, n.y - 12, 24, P.teal, 'center');
     if (n.label) text(c, n.label, n.x, n.y - nodeR - 28, labelSize, P.paper, 'center');
+    c.restore();
   });
   c.restore();
+}
+function clamp01(x) {
+  return Math.max(0, Math.min(1, x));
 }
 
 /** Coarse pixel countdown / progress ring (segmented squares, no smooth arcs). */

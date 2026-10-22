@@ -1,6 +1,7 @@
 // Deterministic world physics props for 科普 (science popularization).
 // Time is a pure function: seek(ms) always yields the same positions / trails.
 // No CDP, no shared mutable sim — integrate from t=0 with fixed substeps.
+import {FONT_FAMILY} from './i18n.mjs';
 
 const DT = 1 / 120; // seconds per substep (fixed → byte-stable across seeks)
 const TWO_PI = Math.PI * 2;
@@ -462,7 +463,7 @@ function drawWorldPane(c, cfg, localMs, box, {showPull = true, label = ''} = {})
   rect(c, x + w - 3, y, 3, h, '#6a7a55');
 
   if (label) {
-    c.font = '28px "Fusion Pixel Proportional", sans-serif';
+    c.font = `28px ${FONT_FAMILY}`;
     c.textAlign = 'center';
     c.textBaseline = 'top';
     c.fillStyle = '#c8c4a8';
@@ -614,7 +615,7 @@ export function drawScaleLadder(c, cfg, localMs, opts = {}) {
     rect(c, x - 3, baseY - 8, 6, 28, '#6a7a55');
     disc(c, x, y, r, rungs[i].color || '#c9a24a');
     if (grow > 0.85 && rungs[i].label) {
-      c.font = '28px "Fusion Pixel Proportional", sans-serif';
+      c.font = `28px ${FONT_FAMILY}`;
       c.textAlign = 'center';
       c.textBaseline = 'top';
       c.fillStyle = '#c8c4a8';
@@ -650,7 +651,7 @@ export function drawFlowProcess(c, cfg, localMs, opts = {}) {
     const lit = t > i * 3.2;
     disc(c, xs[i], ys, 54, lit ? stations[i].color : '#2a3228');
     disc(c, xs[i], ys, 28, lit ? '#0a1210' : '#1a2218');
-    c.font = '28px "Fusion Pixel Proportional", sans-serif';
+    c.font = `28px ${FONT_FAMILY}`;
     c.textAlign = 'center';
     c.textBaseline = 'top';
     c.fillStyle = lit ? '#e4d7a8' : '#5a6658';
@@ -696,9 +697,10 @@ export function drawBalanceScale(c, cfg, localMs, opts = {}) {
   const t = localMs / 1000;
   const leftTarget = cfg.leftMass ?? 1;
   const rightTarget = cfg.rightMass ?? 2;
-  // load-in animation
+  // Equal targets load in sync so the beam does not falsely tip during the equal-mass beat.
+  const equal = Math.abs(leftTarget - rightTarget) < 0.05;
   const leftW = leftTarget * easeInOut(clamp(t / 2.2, 0, 1));
-  const rightW = rightTarget * easeInOut(clamp((t - 1.2) / 2.2, 0, 1));
+  const rightW = rightTarget * easeInOut(clamp((t - (equal ? 0 : 1.2)) / 2.2, 0, 1));
   const tip = clamp((rightW - leftW) / Math.max(0.01, leftTarget + rightTarget), -1, 1);
   const angle = tip * 0.32; // radians-ish visual
   const cx = 960,
@@ -749,39 +751,39 @@ export function drawCollisionTransfer(c, cfg, localMs, opts = {}) {
   rect(c, 200, y + 40, 1520, 14, '#2a3228'); // floor
   const rA = cfg.rA ?? 36,
     rB = cfg.rB ?? 36;
-  const x0A = 320,
-    x0B = 1280;
-  const meet = 960;
-  const hitT = cfg.hitAt ?? 3.2;
-  const vIn = (meet - x0A - rA) / hitT;
+  // Contact when centers are 2r apart: midpoint between touching surfaces = meet.
+  const meet = cfg.meet ?? 960;
+  const x0A = cfg.x0A ?? 280;
+  const restB = meet + rB; // B sits still until hit (left edge at meet)
+  const hitT = cfg.hitAt ?? 2.8;
+  const travel = meet - rA - x0A; // A right-edge reaches meet
+  const vIn = travel / hitT;
   let xA, xB, vA, vB;
   if (t < hitT) {
     xA = x0A + vIn * t;
-    xB = x0B;
+    xB = restB;
     vA = vIn;
     vB = 0;
   } else {
-    // equal mass elastic: velocities swap
+    // Equal-mass 1D elastic: velocities swap. A stops at contact, B flies right.
     const dt = t - hitT;
-    xA = meet - rA + 0 * dt; // A stops (approx after swap with resting B)
-    xB = meet + rB + vIn * dt;
+    xA = meet - rA;
+    xB = restB + vIn * dt;
     vA = 0;
     vB = vIn;
-    // soft clamp so A doesn't drift
-    xA = meet - rA;
   }
   disc(c, xA, y, rA, '#7eb8a4');
   disc(c, xB, y, rB, '#b84a3a');
-  // speed ticks under each (diegetic motion readout)
+  // Speed ticks under each (diegetic motion readout)
   const tick = (x, v, color) => {
     const n = Math.max(0, Math.min(8, Math.round(Math.abs(v) / 40)));
     for (let i = 0; i < n; i++) rect(c, x - 40 + i * 12, y + 56, 8, 6, color);
   };
   tick(xA, vA, '#7eb8a4');
   tick(xB, vB, '#b84a3a');
-  if (t >= hitT && t < hitT + 0.45) {
-    // impact flash
-    rect(c, meet - 8, y - 50, 16, 100, '#e0c46a');
+  if (t >= hitT && t < hitT + 0.4) {
+    // Impact flash at the contact point (between the two surfaces)
+    rect(c, meet - 10, y - rA - 8, 20, rA * 2 + 16, '#e0c46a');
   }
   return {pattern: 'collision-transfer', xA, xB, hit: t >= hitT};
 }
@@ -815,7 +817,7 @@ export function drawCycleLoop(c, cfg, localMs, opts = {}) {
     const lit = (Math.floor(t / 2.2) % n) === i || t > i * 2.2;
     disc(c, x, y, 48, lit ? nodes[i].color : '#2a3228');
     disc(c, x, y, 22, '#0a1210');
-    c.font = '28px "Fusion Pixel Proportional", sans-serif';
+    c.font = `28px ${FONT_FAMILY}`;
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.fillStyle = lit ? '#e4d7a8' : '#5a6658';
@@ -871,8 +873,9 @@ export function drawThresholdTip(c, cfg, localMs, opts = {}) {
       rect(c, fx, Math.min(baseY - 20, fy), 40, 32, '#b84a3a');
     }
   }
-  // threshold mark on wall
-  rect(c, 760, baseY - 28 - Math.ceil(capacity / 2) * 52, 12, 8, '#e0c46a');
+  // Threshold mark aligned with the TOP of a full pile (not one row above).
+  const topRow = Math.floor((capacity - 1) / 2);
+  rect(c, 760, baseY - 28 - topRow * 52, 12, 8, '#e0c46a');
   return {pattern: 'threshold-tip', piled, tipped};
 }
 
@@ -962,34 +965,102 @@ export function drawRatioMix(c, cfg, localMs, opts = {}) {
 }
 
 /**
- * chain-reaction — domino / linked triggers fall in sequence.
- * cfg: {count}
+ * Draw one domino tipped by `angle` radians (0=upright, π/2=flat right),
+ * pivoting on **bottom-right contact** (natural tip onto the bench).
+ * Snapped ctx.rotate + fillRect; imageSmoothingEnabled=false.
+ */
+function drawTippedDomino(c, pivotX, pivotY, w, h, angle, color) {
+  const ang = Math.round(clamp(angle, 0, Math.PI / 2) * 48) / 48;
+  const px = Math.round(pivotX);
+  const py = Math.round(pivotY);
+  c.save();
+  c.imageSmoothingEnabled = false;
+  c.translate(px, py);
+  c.rotate(ang); // +y down ⇒ positive rotate tips the top toward +x
+  // Local: pivot at bottom-right corner; body fills left (−x) and up (−y)
+  rect(c, -w, -h, w, h, color);
+  rect(c, -w, -h, 4, h, shade(color, -20));
+  rect(c, -4, -h, 4, h, shade(color, 25));
+  rect(c, -w, -h, w, 5, '#e8d9a0');
+  c.restore();
+}
+
+/** Tiny deterministic shade helper for bevel (hex only). */
+function shade(hex, delta) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const r = clamp(((n >> 16) & 255) + delta, 0, 255);
+  const g = clamp(((n >> 8) & 255) + delta, 0, 255);
+  const b = clamp((n & 255) + delta, 0, 255);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}
+
+/**
+ * chain-reaction — real tip cascade (mute: ball hits → first tips → chain to end).
+ * cfg: {count, hitAt, tipMs, cascadeMs}
  */
 export function drawChainReaction(c, cfg, localMs, opts = {}) {
   drawLabBackdrop(c, {variant: opts.backdrop || 'bench'});
   const t = localMs / 1000;
-  const count = cfg.count ?? 9;
-  const baseY = 700;
-  const left = 280;
-  const gap = 150;
-  rect(c, 200, baseY + 40, 1520, 14, '#2a3228');
+  const count = cfg.count ?? 8;
+  const tileW = cfg.tileW ?? 26;
+  const tileH = cfg.tileH ?? 118;
+  // Pivot spacing < height so a tipping tile reaches the next.
+  const gap = cfg.gap ?? 62;
+  const baseY = opts.baseY ?? 720;
+  const left = opts.left ?? 360;
+  const hitAt = cfg.hitAt ?? 1.35; // when striker meets tile 0
+  const tipDur = (cfg.tipMs ?? 420) / 1000;
+  const cascade = (cfg.cascadeMs ?? 280) / 1000;
+
+  // Bench
+  rect(c, 180, baseY + 6, 1560, 18, '#2a3228');
+  rect(c, 180, baseY + 24, 1560, 8, '#1a2218');
+
+  // Striker hits the left face of tile 0 (pivot of tile 0 is its bottom-right).
+  const strikerR = 22;
+  const tile0Left = left - tileW;
+  const contactX = tile0Left - strikerR - 1;
+  const strikerStart = contactX - 240;
+  const sx =
+    t < hitAt
+      ? lerp(strikerStart, contactX, easeInOut(clamp(t / hitAt, 0, 1)))
+      : contactX + Math.min(8, (t - hitAt) * 6);
+  const sy = baseY - strikerR;
+  disc(c, sx, sy, strikerR, '#e0c46a');
+  disc(c, sx - 4, sy - 5, 6, '#f5e6b0');
+
+  // Impact flash once at contact
+  if (t >= hitAt && t < hitAt + 0.22) {
+    const flash = Math.round((1 - (t - hitAt) / 0.22) * 4) / 4;
+    c.save();
+    c.globalAlpha = flash;
+    rect(c, tile0Left - 8, baseY - tileH + 10, 16, tileH - 20, '#fff3c0');
+    c.restore();
+  }
+
+  let tippedCount = 0;
   for (let i = 0; i < count; i++) {
-    const fallAt = 0.8 + i * 0.55;
-    const falling = t >= fallAt;
-    const k = falling ? easeInOut(clamp((t - fallAt) / 0.4, 0, 1)) : 0;
-    const x = left + i * gap;
-    // upright → tip right
-    const lean = k * 70;
-    const yShrink = k * 20;
-    rect(c, x + lean, baseY - 120 + yShrink, 28, 120 - yShrink, i % 2 ? '#c9a24a' : '#7eb8a4');
-    if (falling && k > 0.2 && k < 0.85) {
-      rect(c, x + 40, baseY - 40, 20, 8, '#e0c46a'); // spark between
+    const start = hitAt + i * cascade;
+    let ang = 0;
+    if (t >= start) {
+      const u = easeInOut(clamp((t - start) / tipDur, 0, 1));
+      ang = u * (Math.PI / 2);
+    }
+    if (ang > Math.PI / 2 - 0.05) tippedCount++;
+    // Pivot = bottom-right of upright tile so it tips onto the next neighbor.
+    const px = left + i * gap;
+    const color = i % 2 ? '#c9a24a' : '#7eb8a4';
+    drawTippedDomino(c, px, baseY, tileW, tileH, ang, color);
+    // Spark near the tip as it kisses the next tile
+    if (ang > 0.55 && ang < 1.2 && i < count - 1) {
+      const sparkX = Math.round(px + Math.sin(ang) * tileH * 0.9);
+      const sparkY = Math.round(baseY - Math.cos(ang) * tileH * 0.9);
+      rect(c, sparkX - 4, sparkY - 3, 12, 7, '#f0d98a');
     }
   }
-  // striker
-  const sx = 200 + Math.min(80, t * 100);
-  disc(c, sx, baseY - 40, 24, '#e0c46a');
-  return {pattern: 'chain-reaction', count};
+
+  return {pattern: 'chain-reaction', count, tippedCount, hitAt};
 }
 
 /**

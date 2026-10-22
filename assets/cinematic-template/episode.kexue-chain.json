@@ -9,12 +9,12 @@
   "kexue": {
     "pattern": "chain-reaction",
     "allowActorInset": false,
-    "muteClaim": "静音可见：撞击子碰倒第一块，依次倾倒到尽头。"
+    "muteClaim": "静音可见：金球撞倒第一块 → 块块绕底倾倒 → 连锁到尽头；倒下的牌躺在台面上。"
   },
   "sceneId": "workshop",
-  "durationMs": 14000,
+  "durationMs": 12000,
   "fps": 30,
-  "cutMs": 14000,
+  "cutMs": 12000,
   "actorMode": "code",
   "actor": {
     "name": "阿岚",
@@ -28,22 +28,25 @@
   "chapters": [],
   "componentLabels": {},
   "events": [
-    {
-      "at": 0,
-      "type": "actor.hide"
-    },
+    { "at": 0, "type": "actor.hide" },
     {
       "at": 200,
       "type": "world.show",
       "params": {
         "pattern": "chain-reaction",
         "chain": {
-          "count": 9
+          "count": 8,
+          "hitAt": 1.35,
+          "tipMs": 420,
+          "cascadeMs": 300,
+          "gap": 62,
+          "tileH": 118,
+          "tileW": 26
         }
       }
     },
     {
-      "at": 9000,
+      "at": 7500,
       "type": "world.set",
       "params": {
         "focusUi": "一触即发",
@@ -51,32 +54,11 @@
       }
     }
   ],
-  "voice": [
-    {
-      "at": 400,
-      "end": 13200
-    }
-  ],
+  "voice": [{ "at": 400, "end": 11200 }],
   "lines": [
-    {
-      "at": 400,
-      "end": 2800,
-      "text": "只要推第一块。"
-    },
-    {
-      "at": 2800,
-      "end": 6000,
-      "text": "后面自己[[接着倒]]。"
-    },
-    {
-      "at": 6000,
-      "end": 9500,
-      "text": "连锁，是传下去的。"
-    },
-    {
-      "at": 9600,
-      "end": 13000,
-      "text": "一触，即发。"
-    }
+    { "at": 400, "end": 2000, "text": "金球撞上去。" },
+    { "at": 2000, "end": 4200, "text": "第一块[[倒下]]。" },
+    { "at": 4200, "end": 7200, "text": "后面自己[[接着倒]]。" },
+    { "at": 7600, "end": 11000, "text": "连锁，一触即发。" }
   ]
 }

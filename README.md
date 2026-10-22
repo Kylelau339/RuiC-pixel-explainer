@@ -114,7 +114,7 @@
 }
 ```
 
-场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。**科普实验模式**（必选其一）：`?ep=gravity`（orbit-pull）· `kexue-dual` · `kexue-scale` · `kexue-flow` · `kexue-balance` — 目录 [kexue-patterns.md](references/kexue-patterns.md)。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
+场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。**科普实验模式**（11 选一）：`gravity` · `kexue-dual` · `kexue-scale` · `kexue-flow` · `kexue-balance` · `kexue-collision` · `kexue-cycle` · `kexue-threshold` · `kexue-field` · `kexue-ratio` · `kexue-chain` — 目录 [kexue-patterns.md](references/kexue-patterns.md)。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
 
 **一拍一个因果变化**：资料飞入时看库存，检索失败时看结果，核对时看回答与参考答案，成功后才给奖励。
 面板与角色行动分开编排（角色初始站位 / 行走经过区域 / 终点都要考虑）；绘制顺序是背景 → 人物与手持道具 → 奖励与 HUD，别让开门的矩形把奖章抹掉。

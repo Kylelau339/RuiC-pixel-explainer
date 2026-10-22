@@ -1,5 +1,5 @@
 import {drawPaper,drawInventory,drawRecallPanel,drawOpenBook,drawQuizBoard,drawMarkerFlag,drawFeedback,drawRewardBadge,drawCompareCards,drawStepBar,drawTimeline,drawSpeechBubble,drawPathNodes,drawCountdownRing,setLocale} from './components.mjs';
-import {drawKexuePattern} from './world-props.mjs';
+import {drawKexuePattern,sampleCamera,defaultCameraForPattern} from './world-props.mjs';
 import {buildPresetCanvas,resolveScenePair,SCENE_IDS} from './scene-presets.mjs';
 import {FONT_FAMILY,t} from './i18n.mjs';
 import {foldEvents,usesNativeEvents} from './events-adapter.mjs';
@@ -290,7 +290,22 @@ export class CinematicScene{
  drawWorldStage(c,tm,st){
   const w=st.world;if(!w)return false;
   const local=Math.max(0,tm-w.at);
+  // Deterministic punch-in / gentle follow (Phase 4c polish).
+  // Camera: record intent for docs; apply only integer letterbox punch via clip+offset
+  // that does not use canvas scale (scale flakes PNG). Soft "punch" = crop margins.
+  const cam=sampleCamera(local,w.camera?.keyframes||defaultCameraForPattern(w.pattern));
+  const punch=Math.max(0, Math.min(48, Math.round(Math.abs((cam.x||960)-960)*0.04 + Math.abs((cam.y||540)-540)*0.04)));
+  c.save();
+  c.imageSmoothingEnabled=false;
+  if(punch>0){
+   // diegetic punch-in: fill edge black + clip (deterministic rects)
+   c.fillStyle='#04060a';
+   c.fillRect(0,0,1920,punch);c.fillRect(0,1080-punch,1920,punch);
+   c.fillRect(0,0,punch,1080);c.fillRect(1920-punch,0,punch,1080);
+   c.beginPath();c.rect(punch,punch,1920-2*punch,1080-2*punch);c.clip();
+  }
   drawKexuePattern(c,w.pattern,w,local);
+  c.restore();
   if(w.focusUi){
    // Single in-scene focus chip (not a HUD strip) — optional, ≤1.
    const k=ease((tm-w.at)/280);

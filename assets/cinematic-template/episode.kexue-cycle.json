@@ -1,0 +1,99 @@
+{
+  "id": "kexue-cycle-loop",
+  "title": "循环·闭合环",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "kexue": {
+    "pattern": "cycle-loop",
+    "allowActorInset": false,
+    "muteClaim": "静音可见：金点沿环路过蒸→凝→流→升；节点依次点亮，不是步骤条文案。"
+  },
+  "sceneId": "workshop",
+  "durationMs": 14000,
+  "fps": 30,
+  "cutMs": 14000,
+  "actorMode": "code",
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "coat": "#334637",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "hairStyle": "ponytail",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {},
+  "events": [
+    {
+      "at": 0,
+      "type": "actor.hide"
+    },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "pattern": "cycle-loop",
+        "cycle": {
+          "nodes": [
+            {
+              "label": "蒸",
+              "color": "#8ab4c8"
+            },
+            {
+              "label": "凝",
+              "color": "#4a8ac8"
+            },
+            {
+              "label": "流",
+              "color": "#7eb8a4"
+            },
+            {
+              "label": "升",
+              "color": "#c9a24a"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "at": 10000,
+      "type": "world.set",
+      "params": {
+        "focusUi": "闭环才叫循环",
+        "restart": false
+      }
+    }
+  ],
+  "voice": [
+    {
+      "at": 400,
+      "end": 13200
+    }
+  ],
+  "lines": [
+    {
+      "at": 400,
+      "end": 3000,
+      "text": "不是一条直线。"
+    },
+    {
+      "at": 3000,
+      "end": 7000,
+      "text": "一圈走完，又回到[[起点]]。"
+    },
+    {
+      "at": 7000,
+      "end": 10500,
+      "text": "蒸、凝、流、升。"
+    },
+    {
+      "at": 10500,
+      "end": 13500,
+      "text": "闭环，才叫循环。"
+    }
+  ]
+}

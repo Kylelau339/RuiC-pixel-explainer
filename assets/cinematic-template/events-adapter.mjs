@@ -272,7 +272,14 @@ export function foldEvents(ep, ms) {
           scale: p.scale || null,
           flow: p.flow || null,
           balance: p.balance || null,
+          collision: p.collision || null,
+          cycle: p.cycle || null,
+          threshold: p.threshold || null,
+          field: p.field || null,
+          ratio: p.ratio || null,
+          chain: p.chain || null,
           backdrop: p.backdrop || null,
+          camera: p.camera || null, // {keyframes:[{atMs,zoom,x,y}]}
           leftLabel: labelOf(ep, p.leftLabelKey, p.leftLabel || L.worldLeft || ''),
           rightLabel: labelOf(ep, p.rightLabelKey, p.rightLabel || L.worldRight || ''),
           fullLabel: labelOf(ep, p.fullLabelKey, p.fullLabel || ''),
@@ -290,7 +297,14 @@ export function foldEvents(ep, ms) {
           if (p.scale) state.world.scale = {...(state.world.scale || {}), ...p.scale};
           if (p.flow) state.world.flow = {...(state.world.flow || {}), ...p.flow};
           if (p.balance) state.world.balance = {...(state.world.balance || {}), ...p.balance};
+          if (p.collision) state.world.collision = {...(state.world.collision || {}), ...p.collision};
+          if (p.cycle) state.world.cycle = {...(state.world.cycle || {}), ...p.cycle};
+          if (p.threshold) state.world.threshold = {...(state.world.threshold || {}), ...p.threshold};
+          if (p.field) state.world.field = {...(state.world.field || {}), ...p.field};
+          if (p.ratio) state.world.ratio = {...(state.world.ratio || {}), ...p.ratio};
+          if (p.chain) state.world.chain = {...(state.world.chain || {}), ...p.chain};
           if (p.backdrop) state.world.backdrop = p.backdrop;
+          if (p.camera) state.world.camera = p.camera;
           if (p.leftLabel != null || p.leftLabelKey)
             state.world.leftLabel = labelOf(ep, p.leftLabelKey, p.leftLabel ?? state.world.leftLabel);
           if (p.rightLabel != null || p.rightLabelKey)

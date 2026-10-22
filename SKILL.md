@@ -64,16 +64,17 @@ A开工读 [references/imagegen-route.md](references/imagegen-route.md)，用 `s
 
 物理 / 自然 / 原理 / 科学 科普类主题 **必须**：
 
-1. 从 [references/kexue-patterns.md](references/kexue-patterns.md) **选一个** `kexue.pattern`（`orbit-pull` · `dual-world` · `scale-ladder` · `flow-process` · `balance-scale`）  
+1. 从 [references/kexue-patterns.md](references/kexue-patterns.md) **选一个** `kexue.pattern`（共 11：`orbit-pull` · `dual-world` · `scale-ladder` · `flow-process` · `balance-scale` · `collision-transfer` · `cycle-loop` · `threshold-tip` · `field-lines` · `ratio-mix` · `chain-reaction`）  
 2. 过静音验收与检查清单（同文件）；合同细节见 [references/kexue-visual.md](references/kexue-visual.md)
 
 **Agent 检查清单（交片前）**
 
 - [ ] 已写 `kexue.pattern` + `profile:"kexue"` + `hud:false`  
 - [ ] 半身 ≤ 30% 或 `actor.hide`；道具在动；静音可懂  
+- [ ] 拍间有停顿；轨迹/力线可读；可用 `camera.keyframes` 轻推镜头  
 - [ ] 无 Path 标签冒充、无 Compare 文案卡当双世界、无 HUD 汤  
 
-样片画廊：`?ep=gravity|kexue-dual|kexue-scale|kexue-flow|kexue-balance`。
+样片：`?ep=gravity|kexue-dual|kexue-scale|kexue-flow|kexue-balance|kexue-collision|kexue-cycle|kexue-threshold|kexue-field|kexue-ratio|kexue-chain`。
 
 ### 主题 → 推荐组件链（菜单）
 

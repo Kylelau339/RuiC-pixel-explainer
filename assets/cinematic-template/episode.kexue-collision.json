@@ -12,9 +12,9 @@
     "muteClaim": "静音可见：绿球撞上红球后停下，红球带走速度；撞击闪一下。"
   },
   "sceneId": "workshop",
-  "durationMs": 14000,
+  "durationMs": 12000,
   "fps": 30,
-  "cutMs": 14000,
+  "cutMs": 12000,
   "actorMode": "code",
   "actor": {
     "name": "阿岚",
@@ -28,55 +28,26 @@
   "chapters": [],
   "componentLabels": {},
   "events": [
-    {
-      "at": 0,
-      "type": "actor.hide"
-    },
+    { "at": 0, "type": "actor.hide" },
     {
       "at": 200,
       "type": "world.show",
       "params": {
         "pattern": "collision-transfer",
-        "collision": {
-          "hitAt": 3.2
-        }
+        "collision": { "hitAt": 3.0, "x0A": 260, "meet": 960, "rA": 36, "rB": 36 }
       }
     },
     {
-      "at": 9000,
+      "at": 7500,
       "type": "world.set",
-      "params": {
-        "focusUi": "动量被带走了",
-        "restart": false
-      }
+      "params": { "focusUi": "动量被带走了", "restart": false }
     }
   ],
-  "voice": [
-    {
-      "at": 400,
-      "end": 13200
-    }
-  ],
+  "voice": [{ "at": 400, "end": 11200 }],
   "lines": [
-    {
-      "at": 400,
-      "end": 2800,
-      "text": "一个在动，一个在停。"
-    },
-    {
-      "at": 2800,
-      "end": 5500,
-      "text": "撞上——速度[[换了]]主人。"
-    },
-    {
-      "at": 5500,
-      "end": 9000,
-      "text": "这就是动量传递。"
-    },
-    {
-      "at": 9200,
-      "end": 13000,
-      "text": "力，写在速度上。"
-    }
+    { "at": 400, "end": 2800, "text": "一个在动，一个在停。" },
+    { "at": 3000, "end": 5200, "text": "撞上——速度[[换了]]主人。" },
+    { "at": 5200, "end": 7500, "text": "这就是动量传递。" },
+    { "at": 7800, "end": 11000, "text": "力，写在速度上。" }
   ]
 }

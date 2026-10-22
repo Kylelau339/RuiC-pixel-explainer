@@ -399,6 +399,14 @@ export class CinematicScene{
    drawTimeline(c,{x:320,y:180,w:680,steps:st.timeline.steps,activeIndex:st.timeline.activeIndex,progress:st.timeline.progress,title:st.timeline.title,alpha:ease((ms-st.timeline.at)/300)});
    this.qaPanels.push({kind:'timeline',x:320,y:180,w:680,h:80});
   }
+  if(st.stepbar){
+   drawStepBar(c,{x:510,y:120,w:900,steps:st.stepbar.steps,current:st.stepbar.current,title:st.stepbar.title,alpha:ease((ms-st.stepbar.at)/280)});
+   this.qaPanels.push({kind:'stepbar',x:510,y:120,w:900,h:120});
+  }
+  if(st.compare&&!st.speech){
+   drawCompareCards(c,{x:520,y:140,w:700,title:st.compare.title,leftTitle:st.compare.leftTitle,rightTitle:st.compare.rightTitle,leftBody:st.compare.leftBody,rightBody:st.compare.rightBody,highlight:ms>st.compare.at+1000?'right':null,alpha:ease((ms-st.compare.at)/300)});
+   this.qaPanels.push({kind:'compare',x:520,y:140,w:700,h:220});
+  }
   if(st.reward)drawRewardBadge(c,{x:1390,y:294,label:st.reward.label||t('reward'),alpha:ease((ms-st.reward.at)/350)});
   if(st.door.openAt!=null&&ms>st.door.openAt){const open=ease((ms-st.door.openAt)/850);rect(c,1510,225,174,376,'#151e17');rect(c,1515,228,174*open,370,'#ab985d');rect(c,1518,230,168*open,363,'#e1d19c');rect(c,1510+174*open,225,Math.max(8,174*(1-open)),376,'#354431');}
  }

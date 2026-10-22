@@ -29,8 +29,9 @@
 
 | 主题 | 必开 | 可选 | 备注 |
 |---|---|---|---|
+| **物理 / 自然 科普** | `world.show/set`（质点+吸引+轨迹；split 双世界） | 单条 `focusUi`；字幕 | 见 [kexue-visual.md](kexue-visual.md)；**禁** talking-head / Path 标签冒充 |
 | 记忆 / 提取 | Inventory → Recall → Quiz → Feedback → Reward | Marker, OpenBook | `visualBeats` 或等价 `events` |
-| 对比抉择 | CompareCards → Feedback/Reward | StepBar, Speech | |
+| 对比抉择 | CompareCards → Feedback/Reward | StepBar, Speech | 科普因果对比请用 split world，不用文案卡 |
 | 步骤 / 结构 | Timeline + StepBar + Path | Ring, Speech, Compare | 中文非记忆秀 `episode.zh-path.json` |
 | 系统 / 调试 | Recall(failed) → Quiz → Feedback | Compare, Ring | `terminal` |
 | 旅程 / 选择 | Path + walk → Reward | Marker, Speech | `nightstreet` |
@@ -59,7 +60,9 @@ else → legacy 简单镜
 | `rewardAt` | `reward.show` + `actor.celebrate` |
 | `unlockAt` / `walkAt` | `door.unlock` / `actor.walk` |
 
-新 type：`timeline.show|setActive`、`speech.show|hide`、`path.show|litEdge|setNode`、`ring.show|set`、`stepbar.advance`、`compare.show`。未知 type 忽略并 `console.warn`。`at` 为整片绝对毫秒。
+新 type：`timeline.show|setActive`、`speech.show|hide`、`path.show|litEdge|setNode`、`ring.show|set`、`stepbar.advance`、`compare.show`、`world.show|set|hide`、`actor.show|hide`。未知 type 忽略并 `console.warn`。`at` 为整片绝对毫秒。
+
+世界物理：`assets/cinematic-template/world-props.mjs`（`sampleWorld` / `drawSplitWorld`）。科普样片 `episode.zh-gravity.json`（`?ep=gravity`）。
 
 新样片默认写 `events`（见 `episode.zh-path.json`）。旧 `memory-key` 可继续只写 `visualBeats`。
 

@@ -3,10 +3,11 @@
 </style></head><body><div class="viewport"><div class="frame"><canvas width="1920" height="1080" id="stage"></canvas><div class="loading" id="loading">…</div></div></div><div class="controls"><button id="play">▶</button><input id="seek" type="range" min="0" max="19999" step="1" value="0" aria-label="seek"><small id="time">00:00 / 00:20</small><button id="mute">🔊</button></div><audio src="assets/voice.wav" id="audio" preload="metadata"></audio><script type="module">
 import {CinematicScene} from './scene.mjs';
 import {componentGlyphs} from './components.mjs';
+import {WORLD_GLYPHS} from './world-props.mjs';
 import {normalizeLocale,htmlLang,PRELOAD_EXTRA,FONT_FAMILY,FONT_CSS_BY_LOCALE,t,STRINGS} from './i18n.mjs';
 
 const params=new URLSearchParams(location.search);
-const epMap={en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json','occlusion-fail':'./episode.occlusion-fail.json'};
+const epMap={en:'./episode.en.json',ja:'./episode.ja.json','zh-path':'./episode.zh-path.json',gravity:'./episode.zh-gravity.json','zh-gravity':'./episode.zh-gravity.json','occlusion-fail':'./episode.occlusion-fail.json'};
 const epFile=epMap[params.get('ep')]||'./episode.json';
 const ep=await fetch(epFile).then(r=>r.json());
 const locale=normalizeLocale(ep.locale||'zh');
@@ -17,7 +18,7 @@ document.getElementById('loading').textContent=STRINGS[locale]?.loading||t('load
 document.getElementById('seek').max=String(ep.durationMs-1);
 
 const labelVals=Object.values(ep.componentLabels||{}).flatMap(v=>Array.isArray(v)?v:[v]);
-const glyphs=[ep.title,ep.author,ep.actor?.name||'',componentGlyphs,PRELOAD_EXTRA[locale]||'',...labelVals,...(ep.chapters||[]),...(ep.lines||[]).map(l=>l.text)].join('');
+const glyphs=[ep.title,ep.author,ep.actor?.name||'',componentGlyphs,WORLD_GLYPHS,PRELOAD_EXTRA[locale]||'',...labelVals,...(ep.chapters||[]),...(ep.lines||[]).map(l=>l.text),ep.kexue?.muteClaim||''].join('');
 await document.fonts.load(`72px ${FONT_FAMILY}`,glyphs);await document.fonts.ready;
 
 const painter=new CinematicScene(ep);

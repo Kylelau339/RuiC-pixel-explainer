@@ -114,7 +114,7 @@
 }
 ```
 
-场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
+场景预设（六套）：`workshop` `archive` `study` `nightstreet` `terminal` `moonatelier`。英样例 `?ep=en`；日文产品化样例 `?ep=ja`（清单见 [ja-productization.md](references/ja-productization.md)）。**科普重力实验台** `?ep=gravity`（`world-props` 双世界；静音可懂；见 [kexue-visual.md](references/kexue-visual.md)）。导出可用 `--workers 2..4` 多进程并行截帧（`--workers 1` 回滚）；墙钟基准见下文「导出速度」。
 
 **一拍一个因果变化**：资料飞入时看库存，检索失败时看结果，核对时看回答与参考答案，成功后才给奖励。
 面板与角色行动分开编排（角色初始站位 / 行走经过区域 / 终点都要考虑）；绘制顺序是背景 → 人物与手持道具 → 奖励与 HUD，别让开门的矩形把奖章抹掉。
@@ -154,9 +154,10 @@ flowchart LR
 - `scene-presets.mjs` —— 六套可点选粗像素背景
 - `i18n.mjs` —— zh / en / ja 组件默认文案与字体预载辅助
 - `events-adapter.mjs` —— `visualBeats`→`events[]` 适配与 `foldEvents`
-- `episode.json` / `episode.en.json` / `episode.ja.json` / `episode.zh-path.json` —— 主题样例（zh-path 为中文非记忆 `events` 秀）
+- `episode.json` / `episode.en.json` / `episode.ja.json` / `episode.zh-path.json` / `episode.zh-gravity.json` —— 主题样例（zh-path 非记忆；gravity 为科普实验台 v2）
+- `world-props.mjs` —— 吸引源 / 质点 / 轨迹 / 双世界分屏（科普物理层）
 - `components.mjs` —— 十四个讲解组件（含 timeline / speech / path / ring）
-- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）；`?ep=en|ja` 切样例
+- `index.html` —— 播放器 + `window.__player.set(ms)/total`（导出器认这个钩子）；`?ep=en|ja|gravity` 切样例
 - `serve.py` —— 本机 HTTP 服务，支持音频 byte-range
 - `assets/fonts/` —— Fusion Pixel 12px（OFL-1.1，含许可证）；`assets/voice.wav` —— 20 秒示范配音，**新主题必须替换**
 

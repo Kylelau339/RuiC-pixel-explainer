@@ -81,6 +81,8 @@ export function foldEvents(ep, ms) {
     ring: null,
     stepbar: null,
     compare: null,
+    world: null,
+    actorVisible: true,
     panels: [],
   };
 
@@ -258,6 +260,47 @@ export function foldEvents(ep, ms) {
           if (p.mode) state.ring.mode = p.mode;
           if (p.labelKey || p.label) state.ring.label = labelOf(ep, p.labelKey, p.label || state.ring.label);
         }
+        break;
+      case 'world.show':
+        state.world = {
+          at: e.at,
+          layout: p.layout || 'full', // full | split
+          left: p.left || {mode: 'fall'},
+          right: p.right || {mode: 'orbit'},
+          full: p.full || p.cfg || {mode: 'orbit'},
+          leftLabel: labelOf(ep, p.leftLabelKey, p.leftLabel || L.worldLeft || ''),
+          rightLabel: labelOf(ep, p.rightLabelKey, p.rightLabel || L.worldRight || ''),
+          fullLabel: labelOf(ep, p.fullLabelKey, p.fullLabel || ''),
+          showPull: p.showPull !== false,
+          focusUi: p.focusUi || null, // optional single focus string drawn in-scene
+        };
+        break;
+      case 'world.set':
+        if (state.world) {
+          if (p.layout) state.world.layout = p.layout;
+          if (p.left) state.world.left = {...state.world.left, ...p.left};
+          if (p.right) state.world.right = {...state.world.right, ...p.right};
+          if (p.full || p.cfg) state.world.full = {...state.world.full, ...(p.full || p.cfg)};
+          if (p.leftLabel != null || p.leftLabelKey)
+            state.world.leftLabel = labelOf(ep, p.leftLabelKey, p.leftLabel ?? state.world.leftLabel);
+          if (p.rightLabel != null || p.rightLabelKey)
+            state.world.rightLabel = labelOf(ep, p.rightLabelKey, p.rightLabel ?? state.world.rightLabel);
+          if (p.fullLabel != null || p.fullLabelKey)
+            state.world.fullLabel = labelOf(ep, p.fullLabelKey, p.fullLabel ?? state.world.fullLabel);
+          if (p.showPull != null) state.world.showPull = p.showPull;
+          if (p.focusUi !== undefined) state.world.focusUi = p.focusUi;
+          // Restart local clock when layout/mode changes so each beat reads clearly
+          if (p.restart !== false) state.world.at = e.at;
+        }
+        break;
+      case 'world.hide':
+        state.world = null;
+        break;
+      case 'actor.show':
+        state.actorVisible = true;
+        break;
+      case 'actor.hide':
+        state.actorVisible = false;
         break;
       default:
         if (!warned.has(e.type)) {

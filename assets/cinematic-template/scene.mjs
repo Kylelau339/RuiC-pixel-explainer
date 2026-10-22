@@ -1,4 +1,5 @@
 import {drawPaper,drawInventory,drawRecallPanel,drawOpenBook,drawQuizBoard,drawMarkerFlag,drawFeedback,drawRewardBadge,drawCompareCards,drawStepBar,drawTimeline,drawSpeechBubble,drawPathNodes,drawCountdownRing,setLocale} from './components.mjs';
+import {drawFullWorld,drawSplitWorld} from './world-props.mjs';
 import {buildPresetCanvas,resolveScenePair,SCENE_IDS} from './scene-presets.mjs';
 import {FONT_FAMILY,t} from './i18n.mjs';
 import {foldEvents,usesNativeEvents} from './events-adapter.mjs';
@@ -285,16 +286,50 @@ export class CinematicScene{
    drawStepBar(c,{x:510,y:120,w:900,steps,current:cur,title:l.stepBarTitle,alpha:ease((ms-e.stepsAt)/280)});
   }
  }
+ /** World / 科普 experiment stage — props move; HUD stays off unless episode allows. */
+ drawWorldStage(c,tm,st){
+  const w=st.world;if(!w)return false;
+  const local=Math.max(0,tm-w.at);
+  if(w.layout==='split'){
+   drawSplitWorld(c,w.left,w.right,local,{
+    leftLabel:w.leftLabel||'',
+    rightLabel:w.rightLabel||'',
+   });
+  }else{
+   drawFullWorld(c,w.full,local,{
+    label:w.fullLabel||'',
+    showPull:w.showPull!==false,
+   });
+  }
+  if(w.focusUi){
+   // Single in-scene focus chip (not a HUD strip) — optional, ≤1.
+   const k=ease((tm-w.at)/280);
+   c.save();c.globalAlpha=k;
+   panel(c,660,40,600,52);
+   text(c,w.focusUi,960,52,30,'#e4d7a8','center');
+   c.restore();
+  }
+  // Optional brief half-body inset (must stay ≤30% runtime via episode events).
+  if(st.actorVisible&&this.ep.kexue?.allowActorInset){
+   const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);
+   c.save();c.globalAlpha=0.92;
+   rect(c,40,720,320,300,'#0a1210');
+   this.drawActorBig(c,20,680,7.2,tm,this.ep.actor,talking);
+   c.restore();
+  }
+  return true;
+ }
  /** Native events[] draw path (absolute ms). visualBeats still use the legacy enhanced path for pixel parity. */
  bigFromEvents(c,tm){
   const st=foldEvents(this.ep,tm);
+  if(st.world){this.drawWorldStage(c,tm,st);return;}
   c.drawImage(this.bg(this.scenePair.big),0,0);
   const z=lerp(1,1.045,ease(tm/1100));c.save();c.translate(850,510);c.scale(z,z);c.translate(-850,-510);
   spotlight(c,870,118,829,1010,.17);
   const talking=this.ep.voice.some(v=>tm>=v.at&&tm<v.end);
-  this.drawActorBig(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
+  if(st.actorVisible!==false)this.drawActorBig(c,578,268+Math.round(Math.sin(tm/1200)*1.5),16,tm,this.ep.actor,talking);
   rect(c,291,799,1320,21,'#654a2f');rect(c,294,820,1313,32,'#30271e');rect(c,393,801,1081,4,'#b18d4e');
-  panel(c,771,804,158,48);text(c,this.ep.actor.name,850,812,30,'#d7bd72','center');
+  if(st.actorVisible!==false){panel(c,771,804,158,48);text(c,this.ep.actor.name,850,812,30,'#d7bd72','center');}
   if(st.timeline){
    const a=ease((tm-st.timeline.at)/300);
    drawTimeline(c,{x:480,y:140,w:720,steps:st.timeline.steps,activeIndex:st.timeline.activeIndex,progress:st.timeline.progress,title:st.timeline.title,alpha:a});
@@ -325,6 +360,7 @@ export class CinematicScene{
  }
  smallFromEvents(c,tm){
   const ms=tm+this.ep.cutMs,st=foldEvents(this.ep,ms);
+  if(st.world){this.drawWorldStage(c,ms,st);return;}
   c.drawImage(this.bg(this.scenePair.small),0,0);spotlight(c,846,158,828,746,.22);
   for(let x=358;x<1396;x+=29)rect(c,x,762+Math.sin(x/150)*3,7,5,'#547e65');
   let x=520,foot=741,pose='idle';
@@ -362,15 +398,21 @@ export class CinematicScene{
   if(st.door.openAt!=null&&ms>st.door.openAt){const open=ease((ms-st.door.openAt)/850);rect(c,1510,225,174,376,'#151e17');rect(c,1515,228,174*open,370,'#ab985d');rect(c,1518,230,168*open,363,'#e1d19c');rect(c,1510+174*open,225,Math.max(8,174*(1-open)),376,'#354431');}
  }
  hud(c,ms){
+  // 科普默认关 HUD；episode.hud===true 才开章节轨。世界实验台不抢戏。
+  if(this.ep.hud===false||this.ep.profile==='kexue'){
+   if(this.ep.showAuthorTag)text(c,`${this.ep.author} · ${this.ep.title}`,1854,28,22,'#5a6658','right');
+   return;
+  }
   if(ms<this.ep.cutMs)return;
   const local=ms-this.ep.cutMs;
   let current=local<3400?0:local<6400?1:2;
   if(this.ep.visualBeats)current=ms<(this.ep.visualBeats.checkAt??ms+1)?1:2;
   if(usesNativeEvents(this.ep)){
    const st=foldEvents(this.ep,ms);
-   current=st.reward?2:(st.walk||st.path?1:0);
+   current=st.reward?2:(st.walk||st.path||st.world?1:0);
   }
   const chapters=this.ep.chapters||[];
+  if(!chapters.length)return;
   rect(c,0,0,W,57,'#101512');
   chapters.forEach((name,i)=>{const x=i*W/chapters.length,w=W/chapters.length;if(i<=current)rect(c,x,0,w,57,i===current?'#383c33':'#292e27');if(i>0)rect(c,x,15,2,29,'#676c5b');text(c,name,x+w/2,14,30,i===current?'#e4e3cd':'#818977','center')});
   text(c,`${this.ep.author} · ${this.ep.title}`,1854,82,24,'#778372','right');

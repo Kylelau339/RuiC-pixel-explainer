@@ -1,0 +1,89 @@
+{
+  "id": "zh-gravity-v2",
+  "title": "地心引力·实验台",
+  "author": "RuiC",
+  "locale": "zh",
+  "profile": "kexue",
+  "hud": false,
+  "showAuthorTag": true,
+  "sceneId": "moonatelier",
+  "scenes": { "big": "moonatelier", "small": "moonatelier" },
+  "durationMs": 20000,
+  "fps": 30,
+  "cutMs": 20000,
+  "actorMode": "code",
+  "kexue": {
+    "allowActorInset": false,
+    "muteClaim": "静音可见：左直坠、右绕心；拉力带指向中心；轨迹连续弯向吸引源。"
+  },
+  "actor": {
+    "name": "阿岚",
+    "hair": "#282c29",
+    "hairLight": "#41433a",
+    "coat": "#334637",
+    "coatLight": "#50634c",
+    "scarf": "#a55437",
+    "skin": "#f2deca",
+    "skinLight": "#faecd6",
+    "skinShade": "#d4bea5",
+    "clip": "#c79c4a",
+    "hairStyle": "ponytail",
+    "headwear": "none",
+    "eye": "#984352"
+  },
+  "chapters": [],
+  "componentLabels": {
+    "worldLeft": "无向心拉 · 直坠",
+    "worldRight": "有引力 · 绕心",
+    "focusOrbit": "环绕＝不停往中心落"
+  },
+  "events": [
+    { "at": 0, "type": "actor.hide" },
+    {
+      "at": 200,
+      "type": "world.show",
+      "params": {
+        "layout": "full",
+        "full": { "mode": "attract", "mu": 3.6e6, "massR": 18, "seed": { "vx": 280, "vy": 20 } },
+        "showPull": true
+      }
+    },
+    {
+      "at": 5500,
+      "type": "world.set",
+      "params": {
+        "layout": "split",
+        "left": { "mode": "fall", "g": 1200, "massR": 16 },
+        "right": { "mode": "orbit", "mu": 2.8e6, "orbitR": 190, "massR": 16 },
+        "leftLabelKey": "worldLeft",
+        "rightLabelKey": "worldRight",
+        "restart": true
+      }
+    },
+    {
+      "at": 14000,
+      "type": "world.set",
+      "params": {
+        "layout": "full",
+        "full": { "mode": "orbit", "mu": 2.8e6, "orbitR": 200, "massR": 18 },
+        "fullLabel": "",
+        "focusUi": "环绕＝不停往中心落",
+        "showPull": true,
+        "restart": true
+      }
+    }
+  ],
+  "voice": [
+    { "at": 400, "end": 5200 },
+    { "at": 5600, "end": 13500 },
+    { "at": 14200, "end": 19500 }
+  ],
+  "lines": [
+    { "at": 400, "end": 2800, "text": "苹果落地，不是偶然。" },
+    { "at": 2800, "end": 5200, "text": "力在把你[[往中心拉]]。" },
+    { "at": 5600, "end": 9000, "text": "左边：只往下坠。" },
+    { "at": 9000, "end": 13500, "text": "右边：同一股力，变成[[绕飞]]。" },
+    { "at": 14200, "end": 17500, "text": "轨道，是不停地[[落下]]。" },
+    { "at": 17500, "end": 19500, "text": "看得见的，才是引力。" }
+  ]
+}

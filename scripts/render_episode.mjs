@@ -32,7 +32,10 @@ if (has('optimize-for-speed')) {
 
 const url = arg('url', 'http://127.0.0.1:5273/');
 let out = path.resolve(arg('out', 'episode.mp4'));
-const ep = arg('ep');
+const ep = arg('ep') || (() => {
+  try {return new URL(url.includes('://') ? url : `http://127.0.0.1${url}`).searchParams.get('ep') || '';}
+  catch {return '';}
+})();
 const presetRaw = arg('preset', '');
 const preset = presetRaw === 'draft' || presetRaw === 'final' ? presetRaw : '';
 if (presetRaw && !preset) throw new Error('--preset must be draft or final');
@@ -97,12 +100,20 @@ function splitRanges(startFrame, endFrame, n) {
   return ranges;
 }
 
+function buildPageUrl(extra = {}) {
+  // Merge --url (may already have ?ep=) with --ep and capture flags; never nest "?…/?…"
+  const base = url.includes('://') ? url : `http://127.0.0.1${url.startsWith('/') ? '' : '/'}${url}`;
+  const u = new URL(base);
+  if (!u.pathname || u.pathname === '') u.pathname = '/';
+  for (const [k, v] of Object.entries(extra)) u.searchParams.set(k, String(v));
+  if (ep) u.searchParams.set('ep', ep);
+  return u.toString();
+}
+
 async function openProbePage() {
   const browser = await chromium.launch();
   const page = await browser.newPage({viewport: {width: 1280, height: 720}, deviceScaleFactor: dsf});
-  const params = new URLSearchParams({t: String(Math.round(from * 1000)), play: '0', rec: '1', subs: '1'});
-  if (ep) params.set('ep', ep);
-  await page.goto(`${url.replace(/\/$/, '')}/?${params}`, {waitUntil: 'load'});
+  await page.goto(buildPageUrl({t: String(Math.round(from * 1000)), play: '0', rec: '1', subs: '1'}), {waitUntil: 'load'});
   await page.waitForFunction(() => window.__player && !document.querySelector('.loading'), null, {timeout: 60000});
   return {browser, page};
 }
@@ -203,10 +214,13 @@ if (workers === 1) {
   console.log(`并行截帧：${ranges.length} 个 Chromium 进程 → ${workRoot}`);
   const kids = ranges.map(([a, b], i) => {
     const segDir = path.join(workRoot, `w${i}`);
-    const wargs = [segmentScript, '--url', url, '--out-dir', segDir,
+    // Pass a clean origin URL; workers re-apply --ep via their own buildPageUrl.
+    const origin = (() => {try {const u = new URL(url.includes('://') ? url : `http://127.0.0.1${url}`); return `${u.origin}/`;} catch {return url;}})();
+    const wargs = [segmentScript, '--url', origin, '--out-dir', segDir,
       '--from-frame', String(a), '--to-frame', String(b),
       '--fps', String(fps), '--dsf', String(dsf), '--worker-id', String(i)];
-    if (ep) wargs.push('--ep', ep);
+    const epForWorker = ep || (() => {try {return new URL(url.includes('://') ? url : `http://127.0.0.1${url}`).searchParams.get('ep');} catch {return '';}})();
+    if (epForWorker) wargs.push('--ep', epForWorker);
     if (arg('playwright')) wargs.push('--playwright', arg('playwright'));
     return new Promise((resolve, reject) => {
       const child = spawn(process.execPath, wargs, {stdio: ['ignore', 'pipe', 'pipe']});

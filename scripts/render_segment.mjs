@@ -43,9 +43,16 @@ if (!chromium) {console.error(`[worker ${workerId}] no playwright`); process.exi
 await mkdir(outDir, {recursive: true});
 const browser = await chromium.launch();
 const page = await browser.newPage({viewport: {width: 1280, height: 720}, deviceScaleFactor: dsf});
-const params = new URLSearchParams({t: String(Math.round((fromFrame / fps) * 1000)), play: '0', rec: '1', subs: '1'});
-if (ep) params.set('ep', ep);
-await page.goto(`${url.replace(/\/$/, '')}/?${params}`, {waitUntil: 'load'});
+const base = url.includes('://') ? url : `http://127.0.0.1${url.startsWith('/') ? '' : '/'}${url}`;
+const pageUrl = new URL(base);
+if (!pageUrl.pathname) pageUrl.pathname = '/';
+pageUrl.searchParams.set('t', String(Math.round((fromFrame / fps) * 1000)));
+pageUrl.searchParams.set('play', '0');
+pageUrl.searchParams.set('rec', '1');
+pageUrl.searchParams.set('subs', '1');
+const epResolved = ep || pageUrl.searchParams.get('ep') || '';
+if (epResolved) pageUrl.searchParams.set('ep', epResolved);
+await page.goto(pageUrl.toString(), {waitUntil: 'load'});
 await page.waitForFunction(() => window.__player && !document.querySelector('.loading'), null, {timeout: 60000});
 
 const settle = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r)))));
